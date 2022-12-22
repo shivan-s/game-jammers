@@ -1,0 +1,110 @@
+---
+version: "3.8"
+
+name: game-jammers
+
+services:
+  db:
+    container_name: game-jammers_db
+    image: postgres:14
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+      - pgconf:/etc/postgresql
+      - pglog:/var/log/postgresql
+    networks:
+      - internal_network
+    restart: unless-stopped
+
+  cache:
+    container_name: game-jammers_cache
+    depends_on:
+      - db
+    image: redis:7
+    networks:
+      - internal_network
+    env_file:
+      - .env
+
+  backend:
+    container_name: game-jammers_backend
+    image: game-jammers_backend:dev
+    depends_on:
+      - cache
+    build:
+      context: .
+      dockerfile: ./backend/docker/dev/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/code/
+    restart: unless-stopped
+    networks:
+      - internal_network
+      - external_network
+    ports:
+      - "${BACKEND_APP_PORT:-8000}:8000"
+    expose:
+      - ${BACKEND_APP_PORT:-3000}
+
+  celery:
+    container_name: game-jammers_celery
+    image: game-jammers_celery:dev
+    build:
+      context: .
+      dockerfile: ./backend/docker/dev/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ../../backend:/code/
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - backend
+    command:
+      - sh
+      - -c
+      - |
+        celery --app=config.celery:app worker -l INFO
+
+  frontend:
+    container_name: game-jammers_frontend
+    image: node:19-slim
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/code/
+    restart: unless-stopped
+    networks:
+      - internal_network
+      - external_network
+    ports:
+      - "${FRONTEND_APP_PORT:-3000}:3000"
+    expose:
+      - ${FRONTEND_APP_PORT:-3000}
+    command:
+      - sh
+      - -c
+      - |
+        cd /code
+        npm install
+        npm start
+
+networks:
+  external_network:
+  internal_network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
+  pgconf:
+    driver: local
+  pglog:
+    driver: local

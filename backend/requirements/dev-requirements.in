@@ -1,0 +1,18 @@
+-r requirements.txt
+ipdb
+pytest
+pydocstyle
+pytest-lazy-fixture
+pytest-cov
+pytest-django
+pytest-instafail
+pytest-xdist
+pytest-factoryboy
+factory-boy
+faker
+django-stubs[compatible-mypy]
+mypy
+flake8
+tox
+toml
+pygraphviz
