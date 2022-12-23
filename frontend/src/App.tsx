@@ -2,8 +2,8 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./views/Home";
-import UserListPage from "./views/UserListPage";
-import UserDetailPage from "./views/UserDetailPage";
+import UsersListPage from "./views/Users/UsersListPage";
+import UsersDetailPage from "./views/Users/UsersDetailPage";
 
 const App: React.FC = () => {
   return (
@@ -11,8 +11,10 @@ const App: React.FC = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/users" element={<UserListPage />} />
-        <Route path="/users/:UserReferenceId" element={<UserDetailPage />} />
+        <Route path="/users" element={<UsersListPage />} />
+        <Route path="/users/:userReferenceId" element={<UsersDetailPage />} />
+        {/* <Route path="/signin" element={<SignUp />} /> */}
+        {/* <Route path="/login" element={<LogIn />} /> */}
       </Routes>
     </>
   );

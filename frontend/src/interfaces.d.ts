@@ -8,4 +8,5 @@ export interface User {
   reference_id: string;
   username: string;
   name: string | null;
+  date_joined: string;
 }

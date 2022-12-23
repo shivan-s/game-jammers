@@ -26,10 +26,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     # third-party
-    "dj_rest_auth",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "dj_rest_auth",
     "dj_rest_auth.registration",
     "rest_framework",
     "rest_framework.authtoken",

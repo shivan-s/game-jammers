@@ -1,16 +1,17 @@
 import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import apiClient from "../../helpers/httpCommon";
-import { Link, useSearchParams } from "react-router-dom";
-import { PaginatedResponse, User } from "../../interfaces";
+import apiClient from "../../../helpers/httpCommon";
+import { Link } from "react-router-dom";
+import queryString from "query-string";
+import { PaginatedResponse, User } from "../../../interfaces";
 
-const UserListPage: React.FC = () => {
-  const fetchUsers = async (cursorParam: string | null) => {
+const UsersListPage: React.FC = () => {
+  const fetchUsers = async (pageParam: string | null) => {
     let res;
-    if (cursorParam == null) {
+    if (pageParam == null) {
       res = await apiClient.get(`/users`);
     } else {
-      res = await apiClient.get(`/users?cursor=${cursorParam}`);
+      res = await apiClient.get(`/users?cursor=${pageParam}`);
     }
 
     return res.data;
@@ -27,19 +28,18 @@ const UserListPage: React.FC = () => {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    ["advocates"],
-    ({ cursorParam = null }) => fetchUsers(cursorParam),
+    ["users"],
+    ({ pageParam = null }) => fetchUsers(pageParam),
     {
       enabled: true,
-      getNextPageParam: (lastPage, pages) => {
+      getNextPageParam: (lastPage) => {
         if (lastPage.next == null) {
           return undefined;
         }
-        return lastPage.next;
+        return queryString.parse(queryString.extract(lastPage.next))["cursor"];
       },
     }
   );
-  /* console.log(data); */
 
   if (isError) {
     console.error(error);
@@ -57,7 +57,6 @@ const UserListPage: React.FC = () => {
               return (
                 <li key={idx}>
                   {users.map((user) => {
-                    console.log(user);
                     return (
                       <Link
                         key={user.reference_id}
@@ -90,4 +89,4 @@ const UserListPage: React.FC = () => {
   );
 };
 
-export default UserListPage;
+export default UsersListPage;
