@@ -36,7 +36,7 @@ services:
       - cache
     build:
       context: .
-      dockerfile: ./backend/docker/dev/Dockerfile
+      dockerfile: ./.docker/dev/Dockerfile
     env_file:
       - .env
     volumes:
@@ -48,18 +48,18 @@ services:
     ports:
       - "${BACKEND_APP_PORT:-8000}:8000"
     expose:
-      - ${BACKEND_APP_PORT:-3000}
+      - 8000
 
   celery:
     container_name: game-jammers_celery
     image: game-jammers_celery:dev
     build:
       context: .
-      dockerfile: ./backend/docker/dev/Dockerfile
+      dockerfile: ./.docker/dev/Dockerfile
     env_file:
       - .env
     volumes:
-      - ../../backend:/code/
+      - ./backend:/code/
     restart: unless-stopped
     networks:
       - internal_network
@@ -87,7 +87,7 @@ services:
     ports:
       - "${FRONTEND_APP_PORT:-3000}:3000"
     expose:
-      - ${FRONTEND_APP_PORT:-3000}
+      - 3000
     command:
       - sh
       - -c
