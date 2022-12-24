@@ -2,6 +2,7 @@ FROM node:18-slim as builder
 
 ENV CI=true
 ENV NODE_ENV=production
+ENV REACT_APP_API_URL=https://gamejammers.app.shivan.xyz/api/v1/
 
 WORKDIR /app
 
