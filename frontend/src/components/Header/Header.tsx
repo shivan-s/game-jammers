@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Navbar: React.FC = () => {
+const Header: React.FC = () => {
   return (
     <>
       <h2>Game Jammers</h2>
@@ -13,14 +13,14 @@ const Navbar: React.FC = () => {
           <Link to="/users">Users</Link>
         </li>
         <li>
-          <Link to="/signup">Signup</Link>
+          <Link to="/registration">Sign Up</Link>
         </li>
         <li>
-          <Link to="/login">Login</Link>
+          <Link to="/login">Log In</Link>
         </li>
       </ul>
     </>
   );
 };
 
-export default Navbar;
+export default Header;

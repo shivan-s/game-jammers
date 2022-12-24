@@ -3,8 +3,8 @@ requires = ["setuptools>=40.8.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "training"
-version = "0.0.1"
+name = "game-jammers"
+version = "0.1.0"
 
 [tool.isort]
 profile = "black"
@@ -12,19 +12,7 @@ multi_line_output = 3
 line_length = 79
 default_section = "THIRDPARTY"
 known_first_party = ["project", "config"]
-known_third_party = [
-  "allauth",
-  "django",
-  "factory",
-  "faker",
-  "hashid_field",
-  "pytest",
-  "pytest_factoryboy",
-  "pytest_lazyfixture",
-  "sentry_sdk",
-  "simple_history",
-  "softdelete",
-]
+known_third_party = []
 
 [tool.black]
 line-length = 79
@@ -85,8 +73,8 @@ indent = 2
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version_files = ["pyproject.toml"]
-version = "0.0.1"
+version_files = ["pyproject.toml", "../frontend/package.json"]
+version = "0.1.0"
 tag_format = "$version"
 
 style = [

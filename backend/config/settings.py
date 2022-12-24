@@ -75,12 +75,14 @@ REST_FRAMEWORK = {
 }
 
 REST_USE_JWT = True
+JWT_AUTH_COOKIE = "my-app-auth"
+JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     #
     "ALGORITHM": "HS256",
@@ -125,7 +127,9 @@ AUTHENTICATION_BACKENDS = (
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "build",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -206,6 +210,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = BASE_DIR / "build"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 WHITENOISE_MANIFEST_STRICT = False
 
@@ -266,3 +271,5 @@ if os.getenv("DJANGO_DEVELOPMENT", 0) == "1":
 
     CORS_ALLOW_ALL_ORIGINS = True
     del CORS_ALLOWED_ORIGINS
+    TEMPLATES[0]["DIRS"] = []
+    del STATICFILES_DIRS

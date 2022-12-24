@@ -27,9 +27,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteObject):
 
     username_validator = UnicodeUsernameValidator()
 
-    USERNAME_FIELD = "username"
-    EMAIL_FIELD = "email"
-    REQUIRED_FIELDS = ["email"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     reference_id = HashidAutoField(
         primary_key=True, salt=f"custom_user_{settings.HASHID_FIELD_SALT}"
@@ -44,6 +43,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteObject):
 
     name = models.CharField(_("display name"), max_length=50, blank=True, null=True)
 
+    # TODO: set is_active to False when setting up email authentication.
     is_active = models.BooleanField(_("is active"), default=True)
     is_superuser = models.BooleanField(_("is superuser"), default=False)
     is_staff = models.BooleanField(_("is staff"), default=False)

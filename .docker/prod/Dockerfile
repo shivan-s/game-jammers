@@ -1,14 +1,15 @@
-# FROM node:lts
-#
-# WORKDIR /app
-#
-# COPY frontend/package.json frontend/package-lock.json /app/
-#
-# RUN npm ci
-#
-# COPY frontend /app
-#
-# ENV CI=true
+FROM node:lts
+
+WORKDIR /code
+
+COPY frontend/package.json frontend/package-lock.json /code/
+
+RUN npm run build
+
+COPY ./frontend /code/
+
+ENV CI=true
+ENV NODE_ENV=production
 
 FROM python:3.11-slim
 
