@@ -210,7 +210,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = BASE_DIR / "build"
+STATICFILES_DIRS = [BASE_DIR / "build/static"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 WHITENOISE_MANIFEST_STRICT = False
 
@@ -271,5 +271,5 @@ if os.getenv("DJANGO_DEVELOPMENT", 0) == "1":
 
     CORS_ALLOW_ALL_ORIGINS = True
     del CORS_ALLOWED_ORIGINS
-    TEMPLATES[0]["DIRS"] = []
-    del STATICFILES_DIRS
+    # TEMPLATES[0]["DIRS"] = []
+    # del STATICFILES_DIRS
