@@ -5,12 +5,12 @@ ENV NODE_ENV=production
 
 WORKDIR /code
 
-COPY frontend/package.json frontend/package-lock.json /code/
+COPY frontend/package.json frontend/package-lock.json /app/
 
 RUN npm install 
 
 
-COPY ./frontend /code/
+COPY ./frontend /app/
 
 RUN npm run build
 
@@ -28,6 +28,7 @@ WORKDIR /code
 RUN pip install --no-cache-dir -U pip-tools pip
 
 COPY backend/requirements/requirements.in /code/
+COPY --from=builder /app/build/ /code/build/
 # hadolint ignore=DL3042
 RUN pip-compile -o requirements.txt requirements.in && \
   pip install --no-cache-dir --no-deps -r requirements.txt
