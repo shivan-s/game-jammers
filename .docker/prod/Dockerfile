@@ -1,15 +1,19 @@
-FROM node:lts
+FROM node:18-slim as builder
+
+ENV CI=true
+ENV NODE_ENV=production
 
 WORKDIR /code
 
 COPY frontend/package.json frontend/package-lock.json /code/
 
-RUN npm run build
+RUN npm install 
+
 
 COPY ./frontend /code/
 
-ENV CI=true
-ENV NODE_ENV=production
+RUN npm run build
+
 
 FROM python:3.11-slim
 
