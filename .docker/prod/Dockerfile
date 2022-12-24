@@ -3,7 +3,7 @@ FROM node:18-slim as builder
 ENV CI=true
 ENV NODE_ENV=production
 
-WORKDIR /code
+WORKDIR /app
 
 COPY frontend/package.json frontend/package-lock.json /app/
 
