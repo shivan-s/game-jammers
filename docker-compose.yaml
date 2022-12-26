@@ -20,23 +20,25 @@ services:
     restart: unless-stopped
 
   app:
-    platform: "linux/amd64"
-    image: t3-app
+    container_name: gamejammers_app
+    image: gamejammers:dev
+    depends_on:
+      - db
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./.docker/dev/Dockerfile
       args:
         NEXT_PUBLIC_CLIENTVAR: "clientvar"
-    working_dir: /app
     ports:
-      - "{APP_PORT:-3000}:3000"
+      - ${APP_PORT:-3000}:3000
     networks:
       - internal_network
       - external_network
     environment:
-      - DATABASE_URL=postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     env_file:
       - .env
+    restart: unless-stopped
 
 networks:
   external_network:
