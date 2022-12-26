@@ -20,7 +20,7 @@ include = '\.pyi?%'
 
 [tool.mypy]
 mypy_path = "."
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 warn_unused_ignores = true
 warn_redundant_casts = true
 check_untyped_defs = true

@@ -1,16 +1,14 @@
 celery[redis]
 django
-django-allauth
-dj-rest-auth[with_social]
-djangorestframework-simplejwt
+cryptography
+drf-jwt
+pyjwt
 django-cors-headers
 django-celery-beat
 django-celery-results
 django-debug-toolbar
 django-extensions
 django-filter
-django-grappelli
-django-guardian
 django-hashid-field
 django-simple-history
 django-softdelete
@@ -24,3 +22,4 @@ psycopg2-binary
 redis[hiredis]
 sentry-sdk
 whitenoise
+requests

@@ -8,7 +8,7 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", RedirectView.as_view(url="v1/", permanent=True), name="api_index"),
     path("api/v1/", include("project.urls")),
-    path("api/", RedirectView.as_view(url="api/v1", permanent=True), name="api_index"),
-    re_path(r"^(?:.*)?$", TemplateView.as_view(template_name="index.html")),
+    # re_path(r".*", TemplateView.as_view(template_name="index.html")),
 ]

@@ -1,19 +1,19 @@
 """Routing for project."""
 
 from django.urls import include, path
-from project.views import CustomUserViewSet
+from project import views
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter(trailing_slash=False)
 
 # /users/<user pk>
-router.register(r"users", CustomUserViewSet, "users")
+router.register(r"users", views.CustomUserViewSet, "users")
 
 urlpatterns = [
-    path("auth/", include("dj_rest_auth.urls")),
-    path("auth/registration/", include("dj_rest_auth.registration.urls")),
-    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("profile/", views.ProfileViewSet.as_view(), name="profile"),
+    path("index/", views.index, name="index"),
+    path("private/", views.private, name="private"),
+    path("public/", views.public, name="public"),
+    path("private_scoped/", views.private_scoped, name="private_scoped"),
     path("", include(router.urls)),
 ]

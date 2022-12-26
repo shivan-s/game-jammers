@@ -11,6 +11,8 @@ pytest-factoryboy
 factory-boy
 faker
 django-stubs[compatible-mypy]
+djangorestframework-stubs[compatible-mypy]
+types-requests
 mypy
 flake8
 tox

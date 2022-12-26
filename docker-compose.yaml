@@ -71,6 +71,31 @@ services:
       - |
         celery --app=config.celery:app worker -l INFO
 
+  # frontend:
+  #   container_name: game-jammers_frontend
+  #   image: node:19-slim
+  #   depends_on:
+  #     - backend
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./frontend:/code/
+  #   restart: unless-stopped
+  #   networks:
+  #     - internal_network
+  #     - external_network
+  #   ports:
+  #     - "${FRONTEND_APP_PORT:-3000}:3000"
+  #   expose:
+  #     - 3000
+  #   command:
+  #     - sh
+  #     - -c
+  #     - |
+  #       cd /code
+  #       npm install
+  #       npm start
+
   frontend:
     container_name: game-jammers_frontend
     image: node:19-slim
@@ -79,7 +104,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./frontend:/code/
+      - ./frontend-nextjs:/code/
     restart: unless-stopped
     networks:
       - internal_network
@@ -94,7 +119,7 @@ services:
       - |
         cd /code
         npm install
-        npm start
+        npm run dev
 
 networks:
   external_network:

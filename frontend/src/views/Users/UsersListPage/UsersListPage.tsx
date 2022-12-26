@@ -1,11 +1,12 @@
 import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import apiClient from "../../../helpers/httpCommon";
+import useApiClient from "../../../helpers/httpCommon";
 import { Link } from "react-router-dom";
 import queryString from "query-string";
-import { PaginatedResponse, User } from "../../../interfaces";
+import { IPaginatedResponse, IUser } from "../../../interfaces";
 
 const UsersListPage: React.FC = () => {
+  const apiClient = useApiClient();
   const fetchUsers = async (pageParam: string | null) => {
     let res;
     if (pageParam == null) {
@@ -52,8 +53,8 @@ const UsersListPage: React.FC = () => {
       {isSuccess && (
         <>
           <ul>
-            {data.pages.map((response: PaginatedResponse, idx: number) => {
-              const users: User[] = response.results;
+            {data.pages.map((response: IPaginatedResponse, idx: number) => {
+              const users: IUser[] = response.results;
               return (
                 <li key={idx}>
                   {users.map((user) => {

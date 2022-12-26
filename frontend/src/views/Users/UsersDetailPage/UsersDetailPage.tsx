@@ -1,10 +1,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "../../../helpers/httpCommon";
-import { User } from "../../../interfaces";
+import useApiClient from "../../../helpers/httpCommon";
+import { IUser } from "../../../interfaces";
 import { useParams } from "react-router-dom";
 
 const UsersDetailPage: React.FC = () => {
+  const apiClient = useApiClient();
   const params = useParams();
   const userReferenceId = params.userReferenceId;
 
@@ -22,7 +23,7 @@ const UsersDetailPage: React.FC = () => {
     console.error(error);
   }
 
-  const user: User = data;
+  const user: IUser = data;
 
   return (
     <>

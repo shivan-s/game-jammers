@@ -1,83 +1,104 @@
 import { useMutation } from "@tanstack/react-query";
-/* import { useNavigate } from "react-router-dom"; */
-/* import React, { useState } from "react"; */
+import { useFormik } from "formik";
+import { useNavigate } from "react-router-dom";
 import React from "react";
-import apiClient from "../../../helpers/httpCommon/httpCommon";
+import apiClient from "../../../helpers/httpCommon";
 
-/* interface RegistrationProps { */
-/*   username: string; */
-/*   email: string; */
-/*   password1: string; */
-/*   password2: string; */
-/* } */
+interface RegistrationFormProps {
+  username: string;
+  email: string;
+  password1: string;
+  password2: string;
+}
 
 const RegistrationPage: React.FC = () => {
-  /* const history = useNavigate(); */
-  /* const initialFormData: RegistrationProps = Object.freeze({ */
-  /*   username: "", */
-  /*   email: "", */
-  /*   password1: "", */
-  /*   password2: "", */
-  /* }); */
-  /* const [formData, updateFormData] = */
-  /*   useState<RegistrationProps>(initialFormData); */
+  const navigate = useNavigate();
 
-  const handleChange = () => null;
-
-  const { mutate, error, isLoading, isError, isSuccess } = useMutation({
-    mutationFn: (formData) => apiClient.post(`/auth/registration`, formData),
+  const { mutate, error, isLoading, isError } = useMutation({
+    mutationFn: (formData) => apiClient.post(`auth/registration/`, formData),
   });
+
+  const { values, handleChange, handleSubmit } =
+    useFormik<RegistrationFormProps>({
+      initialValues: {
+        username: "",
+        email: "",
+        password1: "",
+        password2: "",
+      },
+      onSubmit: (values) =>
+        mutate(values, {
+          onSuccess: (data, variables, context) => {
+            console.log("data", data);
+            console.log("variable", variables);
+            console.log("context", context);
+            navigate("/login");
+          },
+          onError: (error, variables, context) => {
+            console.log("error", error);
+            console.log("variable", variables);
+            console.log("context", context);
+          },
+        }),
+    });
 
   if (isError) {
     console.log(error);
   }
 
-  console.log(mutate);
+  console.log(error);
 
   return (
     <>
       <h2>Registration</h2>
-      <form>
+      <form onSubmit={handleSubmit}>
         {isLoading && <p>Loading..</p>}
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          name="username"
-          type="text"
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <label htmlFor="password1">Password</label>
-        <input
-          id="password1"
-          name="password1"
-          type="password"
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <label htmlFor="password2">Confirm password</label>
-        <input
-          id="password2"
-          name="password2"
-          type="password"
-          onChange={handleChange}
-          required
-        />
-        <br />
+        <div>
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            value={values.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={values.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="password1">Password</label>
+          <input
+            id="password1"
+            name="password1"
+            type="password"
+            value={values.password1}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="password2">Confirm password</label>
+          <input
+            id="password2"
+            name="password2"
+            type="password"
+            value={values.password2}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <button type="submit">Submit</button>
       </form>
-      {isSuccess && <p>User created...</p>}
     </>
   );
 };
