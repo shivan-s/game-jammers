@@ -1,18 +1,19 @@
+##### DEVELOPMENT
 ##### Deps
 
-FROM node:19-slim AS deps
+FROM --platform=linux/amd64 node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl1.1-compat
 WORKDIR /app
 
 COPY prisma ./
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml\* ./
+COPY package.json package-lock.json* ./
 
-RUN npm install
+RUN npm install # ci
 
 ##### Builder
 
-FROM node:19-slumn AS builder
+FROM --platform=linux/amd64 node:18-alpine AS builder
 ARG DATABASE_URL
 ARG NEXT_PUBLIC_CLIENTVAR
 WORKDIR /app
@@ -21,11 +22,11 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN SKIP_ENV_VALIDATION=1 npm run build
+RUN SKIP_ENV_VALIDATION=1 npm run dev # build
 
 ##### Runner
 
-FROM node:19-slim AS runner
+FROM --platform=linux/amd64 node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
@@ -33,7 +34,7 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs && \
-  adduser --system -uid 1001 nextjs
+  adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/public ./public

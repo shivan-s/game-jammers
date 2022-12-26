@@ -22,6 +22,7 @@ services:
   app:
     container_name: gamejammers_app
     image: gamejammers:dev
+    platform: "linux/amd64"
     depends_on:
       - db
     build:
