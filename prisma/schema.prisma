@@ -7,11 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// model Example {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
 
 // Necessary for Next auth
 model Account {
@@ -48,6 +48,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  teams         Team[]
 }
 
 model VerificationToken {
@@ -56,4 +57,35 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Custom  models
+
+model Team {
+  id        String            @id @default(cuid())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  name      String            @unique
+  users     User[]
+  gameJams  TeamOnGameJames[]
+}
+
+model GameJam {
+  id        String            @id @default(cuid())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  name      String
+  startDate DateTime
+  endDate   DateTime // validation to ensure endDate is after startDate
+  teams     TeamOnGameJames[]
+}
+
+model TeamOnGameJames {
+  team      Team    @relation(fields: [teamId], references: [id])
+  teamId    String
+  gameJam   GameJam @relation(fields: [gameJamId], references: [id])
+  gameJamId String
+  placing   Int     @unique
+
+  @@id([teamId, gameJamId])
 }
