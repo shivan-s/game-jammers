@@ -1,5 +1,4 @@
 import { type NextPage } from "next";
-import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { trpc } from "../utils/trpc";
@@ -7,22 +6,15 @@ import { trpc } from "../utils/trpc";
 const Home: NextPage = () => {
   return (
     <>
-      <Head>
-        <title>Game Jammers</title>
-        <meta name="description" content="Where the games begin" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#801818] to-[#151620]">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Game <span className="text-[#FFDDCA]">Jammers</span>
-          </h1>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">Where the games begin</p>
-            <AuthShowcase />
-          </div>
+      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
+        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+          Game <span className="text-[#FFDDCA]">Jammers</span>
+        </h1>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-2xl text-white">Where the games begin</p>
+          <AuthShowcase />
         </div>
-      </main>
+      </div>
     </>
   );
 };
