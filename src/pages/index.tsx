@@ -12,10 +12,10 @@ const Home: NextPage = () => {
         <meta name="description" content="Where the games begin" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#801818] to-[#151620]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Game <span className="text-[hsl(280,100%,70%)]">Jammers</span>
+            Game <span className="text-[#FFDDCA]">Jammers</span>
           </h1>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">Where the games begin</p>
@@ -34,7 +34,7 @@ const AuthShowcase: React.FC = () => {
 
   const { data: secretMessage } = trpc.auth.getSecretMessage.useQuery(
     undefined, // no input
-    { enabled: sessionData?.user !== undefined },
+    { enabled: sessionData?.user !== undefined }
   );
 
   return (
