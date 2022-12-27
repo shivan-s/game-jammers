@@ -1,8 +1,9 @@
 import { type NextPage } from "next";
+import Link from "next/link";
 
 import { trpc } from "../../utils/trpc";
 
-const Home: NextPage = () => {
+const Users: NextPage = () => {
   return (
     <>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#801818] to-[#151620]">
@@ -11,7 +12,7 @@ const Home: NextPage = () => {
             Users
           </h1>
           <div className="flex flex-col items-center gap-2">
-            <Users />
+            <UsersList />
           </div>
         </div>
       </main>
@@ -19,9 +20,9 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Users;
 
-const Users: React.FC = () => {
+const UsersList: React.FC = () => {
   const {
     data: users,
     error,
@@ -34,7 +35,6 @@ const Users: React.FC = () => {
     console.log(error);
   }
 
-  console.log(users);
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="text-center text-2xl text-white">
@@ -44,7 +44,11 @@ const Users: React.FC = () => {
           <>
             <ul>
               {users.map((user) => {
-                return <li key={user.id}>{user.name}</li>;
+                return (
+                  <li key={user.id}>
+                    <Link href={`users/${user.id}`}>{user.name}</Link>
+                  </li>
+                );
               })}
             </ul>
           </>
