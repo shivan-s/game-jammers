@@ -11,6 +11,7 @@ const User: NextPage = () => {
     isLoading,
     isSuccess,
     isError,
+    // TODO: fix type
   } = trpc.user.getById.useQuery(query.id);
 
   if (isError) {

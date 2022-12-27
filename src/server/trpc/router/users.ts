@@ -6,9 +6,10 @@ export const userRouter = router({
     const users = await ctx.prisma.user.findMany();
     return users;
   }),
-
-  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const user = await ctx.prisma.user.findUnique({ where: { id: input } });
-    return user;
-  }),
+  getById: publicProcedure
+    .input(z.string().optional())
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findUnique({ where: { id: input } });
+      return user;
+    }),
 });
