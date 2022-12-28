@@ -40,17 +40,6 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  teams         Team[]
-}
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -59,33 +48,86 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Custom  models
+model User {
+  id             String       @id @default(cuid())
+  dateJoined     DateTime     @default(now())
+  name           String?
+  bio            String?
+  email          String       @unique
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  gameJamsHosted GameJam[]
+  teamToUser     TeamToUser[]
+  jobsApplied    Job[]
+}
 
-model Team {
-  id        String            @id @default(cuid())
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  name      String            @unique
-  users     User[]
-  gameJams  TeamOnGameJames[]
+// An `Organization` can host multiple game jam and game jams can have multiple hosts
+model Organization {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String
+  description String
+  gameJams    GameJam[]
+  job         Job[]
 }
 
 model GameJam {
-  id        String            @id @default(cuid())
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  name      String
-  startDate DateTime
-  endDate   DateTime // validation to ensure endDate is after startDate
-  teams     TeamOnGameJames[]
+  id          String         @id @default(cuid())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime // validation to ensure endDate is after startDate
+  hosts       Organization[]
+  hostUsers   User[]
+  teams       Team[]
 }
 
-model TeamOnGameJames {
-  team      Team    @relation(fields: [teamId], references: [id])
-  teamId    String
-  gameJam   GameJam @relation(fields: [gameJamId], references: [id])
-  gameJamId String
-  placing   Int     @unique
+// A Team is composed of users who participate in a GameJam
+// One Team per GameJam
+model Team {
+  id         String       @id @default(cuid())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  name       String
+  placing    Int?
+  gameJam    GameJam      @relation(fields: [gameJamId], references: [id], onDelete: Cascade)
+  gameJamId  String
+  teamToUser TeamToUser[]
 
-  @@id([teamId, gameJamId])
+  @@unique([placing, gameJamId])
+  @@unique([name, gameJamId])
+  @@unique([id, gameJamId])
+}
+
+// Added constraint where a user cannot be in multiple teams entered in the
+//  in the same game jam.
+model TeamToUser {
+  team      Team   @relation(fields: [teamId, gameJamId], references: [id, gameJamId], onDelete: Cascade)
+  teamId    String
+  gameJamId String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@unique([gameJamId, userId])
+  @@index([teamId, userId])
+}
+
+// future
+model Job {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  expiredAt      DateTime // set dates by intervals?
+  title          String
+  description    String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  applicants     User[]
+
+  @@unique([id, organizationId])
 }
