@@ -16,8 +16,6 @@ const GameJams: NextPage = () => {
     console.log(error);
   }
 
-  console.log(gameJams);
-
   return (
     <>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -35,7 +33,7 @@ const GameJams: NextPage = () => {
                     {gameJams?.map((gameJam) => {
                       return (
                         <li className="hover:underline" key={gameJam.id}>
-                          <Link href={`users/${gameJam.id}`}>
+                          <Link href={`gamejams/${gameJam.id}`}>
                             {gameJam.name} - Teams: {gameJam.teams.length}
                           </Link>
                           - Start: {gameJam.startDate.toString()} - End:{" "}

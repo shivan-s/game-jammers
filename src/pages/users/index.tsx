@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { trpc } from "../../utils/trpc";
 
-const UsersList: NextPage = () => {
+const Users: NextPage = () => {
   const {
     data,
     error,
@@ -40,7 +40,9 @@ const UsersList: NextPage = () => {
                       users.map((user) => {
                         return (
                           <li className="hover:underline" key={user.id}>
-                            <Link href={`users/${user.id}`}>{user.name}</Link>
+                            <Link href={`users/${user.username}`}>
+                              {user.name}
+                            </Link>
                           </li>
                         );
                       }),
@@ -71,4 +73,4 @@ const UsersList: NextPage = () => {
   );
 };
 
-export default UsersList;
+export default Users;

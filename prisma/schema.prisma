@@ -7,11 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// model Example {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
 
 // Necessary for Next auth
 model Account {
@@ -49,18 +49,104 @@ model VerificationToken {
 }
 
 model User {
-  id             String       @id @default(cuid())
-  dateJoined     DateTime     @default(now())
-  name           String?
-  bio            String?
-  email          String       @unique
-  emailVerified  DateTime?
-  image          String?
-  accounts       Account[]
-  sessions       Session[]
+  id            String    @id @default(cuid())
+  dateJoined    DateTime  @default(now())
+  username      String    @unique
+  email         String    @unique
+  emailVerified DateTime?
+
+  name  String?
+  bio   String?
+  image String?
+
+  accounts Account[]
+  sessions Session[]
+
   gameJamsHosted GameJam[]
   teamToUser     TeamToUser[]
-  jobsApplied    Job[]
+
+  connectionRequestSent     UserConnect[] @relation("sender")
+  connectionRequestReceived UserConnect[] @relation("receiver")
+
+  // connectionBlockedBy       UserBlocked[] @relation("blocked")
+  // connectionBlocking        UserBlocked[] @relation("blocker")
+
+  programmingLanguages ProgrammingLanguage[]
+  tags                 Tag[]
+  role                 Role                  @default(MEMBER)
+  skillLevel           SkillLevel            @default(BEGINNER)
+  jobsApplied          Job[]
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  MEMBER
+  BANNED
+}
+
+enum SkillLevel {
+  NEW
+  BEGINNER
+  INTERMEDIATE
+  VETERAN
+  PROFESSIONAL
+}
+
+model UserConnect {
+  createdAt  DateTime @default(now())
+  sender     User     @relation("sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String
+  accepted   Boolean  @default(false)
+  ignored    Boolean  @default(false)
+
+  @@id([senderId, receiverId])
+}
+
+// TODO: create tables for Block and Ignore
+
+// model UserBlocked {
+//   createdAt  DateTime @default(now())
+//   blocker     User     @relation("blocker", fields: [senderId], references: [id])
+//   senderId   String
+//   blocked   User     @relation("blocked", fields: [receiverId], references: [id])
+//   receiverId String
+//   accepted   Boolean  @default(false)
+//   ignored    Boolean  @default(false)
+//
+//   @@id([senderId, receiverId])
+// }
+
+model Tag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  users     User[]
+}
+
+// Need to seed this
+model ProgrammingLanguage {
+  id          String                    @id @default(cuid())
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+  name        ProgrammingLanguageChoice @unique
+  displayName String?
+  users       User[]
+}
+
+enum ProgrammingLanguageChoice {
+  PYTHON
+  JAVASCRIPT
+  TYPESCRIPT
+  C
+  CPP
+  GOLANG
+  RUST
+  CSHARP
+  // TODO: add more languages
 }
 
 // An `Organization` can host multiple game jam and game jams can have multiple hosts
@@ -75,16 +161,32 @@ model Organization {
 }
 
 model GameJam {
-  id          String         @id @default(cuid())
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  name        String
-  description String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   startDate   DateTime
   endDate     DateTime // validation to ensure endDate is after startDate
-  hosts       Organization[]
-  hostUsers   User[]
-  teams       Team[]
+  name        String
+  description String
+
+  hosts     Organization[]
+  hostUsers User[]
+  teams     Team[]
+
+  rules Rule[]
+}
+
+model Rule {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gameJame GameJam[]
+
+  name        String
+  description String?
+  isAllowed   Boolean
 }
 
 // A Team is composed of users who participate in a GameJam
