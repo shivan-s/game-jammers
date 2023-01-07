@@ -51,14 +51,13 @@ model VerificationToken {
 model User {
   id            String    @id @default(cuid())
   dateJoined    DateTime  @default(now())
-  username      String    @unique
   email         String    @unique
   emailVerified DateTime?
 
   name  String?
-  bio   String?
   image String?
 
+  profile  Profile?
   accounts Account[]
   sessions Session[]
 
@@ -68,14 +67,22 @@ model User {
   connectionRequestSent     UserConnect[] @relation("sender")
   connectionRequestReceived UserConnect[] @relation("receiver")
 
-  // connectionBlockedBy       UserBlocked[] @relation("blocked")
-  // connectionBlocking        UserBlocked[] @relation("blocker")
+  connectionBlockedBy UserBlocked[] @relation("blocked")
+  connectionBlocking  UserBlocked[] @relation("blocker")
 
-  programmingLanguages ProgrammingLanguage[]
-  tags                 Tag[]
-  role                 Role                  @default(MEMBER)
-  skillLevel           SkillLevel            @default(BEGINNER)
-  jobsApplied          Job[]
+  skillLevel SkillLevel @default(BEGINNER)
+  tags       Tag[]
+  role       Role       @default(MEMBER)
+}
+
+model Profile {
+  id       String  @id @default(cuid())
+  user     User    @relation(fields: [userId], references: [id])
+  userId   String  @unique
+  username String  @unique
+  bio      String?
+  name     String?
+  image    String?
 }
 
 enum Role {
@@ -105,48 +112,41 @@ model UserConnect {
   @@id([senderId, receiverId])
 }
 
-// TODO: create tables for Block and Ignore
+model UserBlocked {
+  createdAt DateTime @default(now())
+  blocker   User     @relation("blocker", fields: [blockerId], references: [id])
+  blockerId String
+  blocked   User     @relation("blocked", fields: [blockedId], references: [id])
+  blockedId String
+  isBlocked Boolean  @default(false)
 
-// model UserBlocked {
-//   createdAt  DateTime @default(now())
-//   blocker     User     @relation("blocker", fields: [senderId], references: [id])
-//   senderId   String
-//   blocked   User     @relation("blocked", fields: [receiverId], references: [id])
-//   receiverId String
-//   accepted   Boolean  @default(false)
-//   ignored    Boolean  @default(false)
-//
-//   @@id([senderId, receiverId])
-// }
+  @@id([blockerId, blockedId])
+}
 
 model Tag {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String   @unique
-  users     User[]
+
+  name     String   @unique
+  users    User[]
+  subtags  SubTag[]
+  tagColor TagColor
 }
 
-// Need to seed this
-model ProgrammingLanguage {
-  id          String                    @id @default(cuid())
-  createdAt   DateTime                  @default(now())
-  updatedAt   DateTime                  @updatedAt
-  name        ProgrammingLanguageChoice @unique
-  displayName String?
-  users       User[]
+model SubTag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String @unique
+  tag   Tag    @relation(fields: [tagId], references: [id])
+  tagId String
 }
 
-enum ProgrammingLanguageChoice {
-  PYTHON
-  JAVASCRIPT
-  TYPESCRIPT
-  C
-  CPP
-  GOLANG
-  RUST
-  CSHARP
-  // TODO: add more languages
+enum TagColor {
+  GREEN
+  YELLOW
 }
 
 // An `Organization` can host multiple game jam and game jams can have multiple hosts
@@ -157,7 +157,6 @@ model Organization {
   name        String
   description String
   gameJams    GameJam[]
-  job         Job[]
 }
 
 model GameJam {
@@ -220,16 +219,16 @@ model TeamToUser {
 }
 
 // future
-model Job {
-  id             String       @id @default(cuid())
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  expiredAt      DateTime // set dates by intervals?
-  title          String
-  description    String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  applicants     User[]
-
-  @@unique([id, organizationId])
-}
+// model Job {
+//   id             String       @id @default(cuid())
+//   createdAt      DateTime     @default(now())
+//   updatedAt      DateTime     @updatedAt
+//   expiredAt      DateTime // set dates by intervals?
+//   title          String
+//   description    String
+//   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+//   organizationId String
+//   applicants     User[]
+//
+//   @@unique([id, organizationId])
+// }

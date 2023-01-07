@@ -17,6 +17,7 @@ export const userRouter = router({
       const limit = input.limit ?? 50;
       const { cursor } = input;
       const users = await ctx.prisma.user.findMany({
+        where: { NOT: [{ profile: null }] },
         take: limit + 1,
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
@@ -35,20 +36,26 @@ export const userRouter = router({
     .input(z.string())
     .query(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findUnique({
-        where: { username: input },
+        where: { id: input },
         include: {
+          profile: true,
           teamToUser: {
             include: {
               team: {
                 include: {
-                  gameJam: true,
-                  teamToUser: { include: { user: true } },
+                  gameJam: {
+                    include: {
+                      teams: {
+                        include: { teamToUser: { include: { user: true } } },
+                      },
+                      hostUsers: true,
+                    },
+                  },
                 },
               },
             },
           },
           tags: true,
-          programmingLanguages: true,
           connectionRequestSent: {
             where: { accepted: true },
             include: { receiver: true },
@@ -66,26 +73,45 @@ export const userRouter = router({
         });
       }
       const userWithConnections = addUserConnections(user);
-      return addUserHandle(userWithConnections);
+      const userWithHandle = addUserHandle(userWithConnections);
+      // TODO: fix types
+      return divideGameJams(userWithHandle);
     }),
 });
 
-// TODO: fix types
+const gameJamWithUsers = Prisma.validator<Prisma.GameJamArgs>()({
+  include: {
+    teams: {
+      include: { teamToUser: { include: { user: true } } },
+    },
+    hostUsers: true,
+  },
+});
+
+export type GameJamWithUsers = Prisma.GameJamGetPayload<
+  typeof gameJamWithUsers
+>;
 
 const userWithExtraFields = Prisma.validator<Prisma.UserArgs>()({
   include: {
+    profile: true,
     teamToUser: {
       include: {
         team: {
           include: {
-            gameJam: true,
-            teamToUser: { include: { user: true } },
+            gameJam: {
+              include: {
+                teams: {
+                  include: { teamToUser: { include: { user: true } } },
+                },
+                hostUsers: true,
+              },
+            },
           },
         },
       },
     },
     tags: true,
-    programmingLanguages: true,
     connectionRequestSent: {
       where: { accepted: true },
       include: { receiver: true },
@@ -97,12 +123,15 @@ const userWithExtraFields = Prisma.validator<Prisma.UserArgs>()({
   },
 });
 
-type UserWithExtraFields = Prisma.UserGetPayload<typeof userWithExtraFields>;
+export type UserWithExtraFields = Prisma.UserGetPayload<
+  typeof userWithExtraFields
+>;
 
-function addUserHandle(user: User | UserWithExtraFields) {
+function addUserHandle(user: UserWithExtraFields | User) {
   return {
     ...user,
-    handle: "@" + user.username,
+    username: user.profile.username,
+    handle: "@" + user.profile.username,
   };
 }
 
@@ -125,10 +154,10 @@ function divideGameJams(user: UserWithExtraFields) {
     currentGameJams: gameJams.filter(
       ({ startDate, endDate }) => isPast(startDate) && isFuture(endDate)
     ),
-    pastGameJams: gameJams.filter(
+    previousGameJams: gameJams.filter(
       ({ startDate, endDate }) => isPast(startDate) && isPast(endDate)
     ),
-    futureGameJams: gameJams.filter(
+    upcomingGameJams: gameJams.filter(
       ({ startDate, endDate }) => isFuture(startDate) && isFuture(endDate)
     ),
   };

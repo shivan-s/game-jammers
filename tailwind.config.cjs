@@ -4,8 +4,12 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        satoshi: "Satoshi",
+        satoshi: ["Satoshi"],
       },
+    },
+    container: {
+      center: true,
+      padding: "2rem",
     },
   },
   plugins: [],

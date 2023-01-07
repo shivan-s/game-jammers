@@ -29,6 +29,7 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GITHUB_ID,
       clientSecret: env.GITHUB_SECRET,
     }),
+
     // TODO: look into this for google verfied emails - https://next-auth.js.org/providers/google
     GoogleProvider({
       clientId: env.GOOGLE_ID,
@@ -36,6 +37,9 @@ export const authOptions: NextAuthOptions = {
     }),
     // ...add more providers here
   ],
+  pages: {
+    newUser: "auth/new-user",
+  },
 };
 
 export default NextAuth(authOptions);

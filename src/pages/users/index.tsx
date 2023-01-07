@@ -16,7 +16,7 @@ const Users: NextPage = () => {
     isFetchingNextPage,
   } = trpc.user.getAll.useInfiniteQuery(
     { limit: 50 },
-    { getNextPageParam: (nextPage) => nextPage.nextCursor },
+    { getNextPageParam: (nextPage) => nextPage.nextCursor }
   );
 
   if (isError) {
@@ -45,7 +45,7 @@ const Users: NextPage = () => {
                             </Link>
                           </li>
                         );
-                      }),
+                      })
                     )}
                   </ul>
 

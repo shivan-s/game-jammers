@@ -1,0 +1,3 @@
+interface IGameJameCount {
+  teamCount: number;
+}
