@@ -5,8 +5,9 @@ import { toFormikValidate } from "zod-formik-adapter";
 import { trpc } from "../../utils/trpc";
 import { useRouter } from "next/router";
 import CustomForm from "../../components/CustomForm";
-import CustomField from "../../components/CustomField";
+import CustomFieldInput from "../../components/CustomFieldInput";
 import { NewUserSchema } from "../../server/trpc/router/profiles";
+import CustomFieldTextArea from "../../components/CustomFieldTextArea";
 
 const NewUser: NextPage = ({ csrfToken }) => {
   const router = useRouter();
@@ -38,15 +39,14 @@ const NewUser: NextPage = ({ csrfToken }) => {
             <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
             <p className="text-neutral-200">Just to complete your profile...</p>
             <div className="flex flex-col gap-2">
-              <CustomField
+              <CustomFieldInput
                 label="Username"
                 placeholder="Enter username"
                 type="text"
                 name="username"
                 maxLength={15}
               />
-              <CustomField
-                component="textarea"
+              <CustomFieldTextArea
                 label="Bio"
                 placeholder="Enter bio"
                 type="text"

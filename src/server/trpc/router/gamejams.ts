@@ -2,7 +2,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { formatISO } from "date-fns";
 
-export const NewGameJamSchema = z.object({
+export const NewGameJamSchema = {
   name: z
     .string({ required_error: "You must provide a name for the Jam." })
     .min(4, { message: "Name must be longer than 4 characters." })
@@ -14,7 +14,7 @@ export const NewGameJamSchema = z.object({
     .optional(),
   startDate: z.string().datetime({ message: "Invalid date entry." }),
   endDate: z.string().datetime({ message: "Invalid date entry." }),
-});
+};
 
 export const gameJamRouter = router({
   getAll: publicProcedure
@@ -129,11 +129,17 @@ export const gameJamRouter = router({
     }),
 
   createOrUpdate: protectedProcedure
-    .input({ userId: z.string(), id: z.string(), ...NewGameJamSchema })
+    .input(
+      z.object({
+        userId: z.string(),
+        id: z.string().optional(),
+        ...NewGameJamSchema,
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { userId, startDate, endDate, name, description } = input;
       const id = input.id || "";
-      const gameJam = await ctx.prisma.profile.upsert({
+      const gameJam = await ctx.prisma.gameJam.upsert({
         where: {
           id: id,
         },
@@ -141,8 +147,8 @@ export const gameJamRouter = router({
           startDate: startDate,
           endDate: endDate,
           name: name,
-          description: description,
-          userHost: {
+          description: description || "",
+          hostUsers: {
             connect: {
               id: userId,
             },
@@ -152,7 +158,12 @@ export const gameJamRouter = router({
           startDate: startDate,
           endDate: endDate,
           name: name,
-          description: description,
+          description: description || "",
+          hostUsers: {
+            connect: {
+              id: userId,
+            },
+          },
         },
       });
       return gameJam;

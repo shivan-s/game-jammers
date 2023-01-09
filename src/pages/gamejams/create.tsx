@@ -1,19 +1,22 @@
 import { Formik } from "formik";
 import { type GetServerSidePropsContext, type NextPage } from "next";
 import { getCsrfToken, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+/* import { useRouter } from "next/router"; */
 import { toFormikValidate } from "zod-formik-adapter";
-import CustomField from "../../components/CustomField";
+import CustomFieldInput from "../../components/CustomFieldInput";
+import CustomFieldTextArea from "../../components/CustomFieldTextArea";
 import CustomForm from "../../components/CustomForm";
 import { NewGameJamSchema } from "../../server/trpc/router/gamejams";
 import { trpc } from "../../utils/trpc";
+import { z } from "zod";
 
 const CreateGameJam: NextPage = ({ csrfToken }) => {
-  const router = useRouter();
+  /* const router = useRouter(); */
   const { data: sessionData } = useSession();
   const { mutate: createGameJam } = trpc.gameJam.createOrUpdate.useMutation({
-    onSuccess: ({ id }) => {
-      router.push(`/gameJam/${id}`);
+    onSuccess: () => {
+      console.log("yay!");
+      /* router.push(`/gameJam`); */
     },
   });
 
@@ -27,7 +30,7 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
             name: "",
             description: "",
           }}
-          validate={toFormikValidate(NewGameJamSchema)}
+          validate={toFormikValidate(z.object(NewGameJamSchema))}
           onSubmit={(values) =>
             createGameJam({
               userId: sessionData?.user?.id || "",
@@ -37,9 +40,9 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
         >
           <CustomForm>
             <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-            <CustomField
+            <CustomFieldInput
               label="Name"
-              placeholder="Enter Jam name"
+              placeholder="Enter name"
               maxLength={50}
               type="text"
               id="name"
@@ -47,27 +50,26 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
               required
             />
             <div className="flex flex-wrap gap-2">
-              <CustomField
+              <CustomFieldInput
                 label="Start"
                 type="date"
                 id="startDate"
                 name="startDate"
                 required
               />
-              <CustomField
+              <CustomFieldInput
                 label="End"
                 type="date"
-                id="name"
+                id="endDate"
                 name="endDate"
                 required
               />
             </div>
-            <CustomField
-              component="textarea"
+            <CustomFieldTextArea
               label="Description"
+              rows={5}
               maxLength={1000}
-              placeholder="Description"
-              type="text"
+              placeholder="Enter description"
               id="name"
               name="name"
             />

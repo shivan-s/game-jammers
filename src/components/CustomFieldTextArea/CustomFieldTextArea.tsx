@@ -1,20 +1,18 @@
 import { useField } from "formik";
-import { type ICustomField } from "./interface";
+import { type ICustomFieldTextArea } from "./interface";
 
-const CustomField = ({
-  component,
+const CustomFieldTextArea = ({
   maxLength,
   label,
   ...props
-}: ICustomField) => {
+}: ICustomFieldTextArea) => {
   const [field, meta] = useField(props);
-  const Component = component || "input";
   return (
     <>
       <label>
         <strong>{label}</strong>{" "}
         {maxLength && `(${meta.value.length}/${maxLength})`}
-        <Component
+        <textarea
           className={`m-0 block w-full rounded border border-solid bg-stone-700 bg-clip-border px-4 py-2 transition ease-in-out  hover:bg-stone-600 focus:outline-none ${
             meta.touched && meta.error
               ? "border-red-400 hover:border-red-500 focus:border-red-400"
@@ -31,4 +29,4 @@ const CustomField = ({
   );
 };
 
-export default CustomField;
+export default CustomFieldTextArea;
