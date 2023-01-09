@@ -1,7 +1,7 @@
-import { type UserWithExtraFields } from "../../server/trpc/router/users";
+import { type DetailUserExtraFields } from "../../server/trpc/router/users";
 import DisplayTag from "../DisplayTag";
 
-const UserDisplayTags = ({ tags }: UserWithExtraFields) => {
+const UserDisplayTags = ({ tags }: DetailUserExtraFields) => {
   // Need to add limits for numbers
   return tags.map((tag) => <DisplayTag key={tag.id} {...tag} />);
 };

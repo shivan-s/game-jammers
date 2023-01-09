@@ -5,66 +5,103 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { isPast, isFuture } from "date-fns";
 
+const gameJamWithInclude = Prisma.validator<Prisma.GameJamArgs>()({
+  include: {
+    teams: {
+      include: { teamToUser: { include: { user: true } } },
+    },
+    hostUsers: true,
+  },
+});
+
+const listUserWithInclude = Prisma.validator<Prisma.UserArgs>()({
+  include: {
+    profile: true,
+    connectionRequestSent: {
+      where: { accepted: true },
+      include: { receiver: true },
+    },
+    connectionRequestReceived: {
+      where: { accepted: true },
+      include: { sender: true },
+    },
+  },
+});
+
+const detailUserWithInclude = Prisma.validator<Prisma.UserArgs>()({
+  include: {
+    ...listUserWithInclude.include,
+    teamToUser: {
+      include: {
+        team: {
+          include: {
+            gameJam: gameJamWithInclude,
+          },
+        },
+      },
+    },
+    tags: true,
+  },
+});
+
 export const userRouter = router({
   getAll: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
+        q: z.string().nullish(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 50;
       const { cursor } = input;
+      const q = input.q || "";
+      const limit = input.limit ?? 50;
+      const filter = {
+        name: { contains: q },
+        NOT: [{ profile: null }],
+      };
       const users = await ctx.prisma.user.findMany({
-        where: { NOT: [{ profile: null }] },
+        where: filter,
+        include: listUserWithInclude.include,
         take: limit + 1,
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
           id: "asc",
         },
       });
+
+      const usersCount = await ctx.prisma.user.count({
+        where: filter,
+      });
+
+      const usersWithHandles = users.map((user) => addUserHandle(user));
+
       let nextCursor: typeof cursor | undefined = undefined;
       if (users.length > limit) {
         const nextUser = users.pop();
         nextCursor = nextUser ? nextUser.id : undefined;
       }
-      return { users, nextCursor };
+      return { users: usersWithHandles, nextCursor, count: usersCount };
     }),
+
+  /* const getUsersByRelevance = await prisma.user.findMany({ */
+  /*   take: 10, */
+  /*   orderBy: { */
+  /*     _relevance: { */
+  /*       fields: ['bio'], */
+  /*       search: 'developer', */
+  /*       sort: 'asc', */
+  /*     }, */
+  /*   }, */
+  /* }) */
 
   getByUsername: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findUnique({
-        where: { id: input },
-        include: {
-          profile: true,
-          teamToUser: {
-            include: {
-              team: {
-                include: {
-                  gameJam: {
-                    include: {
-                      teams: {
-                        include: { teamToUser: { include: { user: true } } },
-                      },
-                      hostUsers: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          tags: true,
-          connectionRequestSent: {
-            where: { accepted: true },
-            include: { receiver: true },
-          },
-          connectionRequestReceived: {
-            where: { accepted: true },
-            include: { sender: true },
-          },
-        },
+      const user = await ctx.prisma.user.findFirst({
+        where: { profile: { username: input } },
+        include: detailUserWithInclude.include,
       });
       if (!user) {
         throw new TRPCError({
@@ -79,55 +116,19 @@ export const userRouter = router({
     }),
 });
 
-const gameJamWithUsers = Prisma.validator<Prisma.GameJamArgs>()({
-  include: {
-    teams: {
-      include: { teamToUser: { include: { user: true } } },
-    },
-    hostUsers: true,
-  },
-});
-
 export type GameJamWithUsers = Prisma.GameJamGetPayload<
-  typeof gameJamWithUsers
+  typeof gameJamWithInclude
 >;
 
-const userWithExtraFields = Prisma.validator<Prisma.UserArgs>()({
-  include: {
-    profile: true,
-    teamToUser: {
-      include: {
-        team: {
-          include: {
-            gameJam: {
-              include: {
-                teams: {
-                  include: { teamToUser: { include: { user: true } } },
-                },
-                hostUsers: true,
-              },
-            },
-          },
-        },
-      },
-    },
-    tags: true,
-    connectionRequestSent: {
-      where: { accepted: true },
-      include: { receiver: true },
-    },
-    connectionRequestReceived: {
-      where: { accepted: true },
-      include: { sender: true },
-    },
-  },
-});
-
-export type UserWithExtraFields = Prisma.UserGetPayload<
-  typeof userWithExtraFields
+export type DetailUserExtraFields = Prisma.UserGetPayload<
+  typeof detailUserWithInclude
 >;
 
-function addUserHandle(user: UserWithExtraFields | User) {
+export type ListUserExtraFields = Prisma.UserGetPayload<
+  typeof listUserWithInclude
+>;
+
+function addUserHandle(user: DetailUserExtraFields | User) {
   return {
     ...user,
     username: user.profile.username,
@@ -135,7 +136,7 @@ function addUserHandle(user: UserWithExtraFields | User) {
   };
 }
 
-function addUserConnections(user: UserWithExtraFields) {
+function addUserConnections(user: DetailUserExtraFields) {
   const usersConnected = user.connectionRequestReceived
     .map(({ sender }) => addUserHandle(sender))
     .concat(
@@ -147,7 +148,7 @@ function addUserConnections(user: UserWithExtraFields) {
   };
 }
 
-function divideGameJams(user: UserWithExtraFields) {
+function divideGameJams(user: DetailUserExtraFields) {
   const gameJams = user.teamToUser.map(({ team }) => team.gameJam);
   return {
     ...user,

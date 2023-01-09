@@ -5,4 +5,5 @@ interface IButton extends PropsWithChildren {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   type?: "submit" | "button" | "reset";
   disabled?: boolean;
+  isLoading?: boolean;
 }

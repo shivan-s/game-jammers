@@ -1,6 +1,29 @@
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { Prisma } from "@prisma/client";
+
+export const NewUserSchema = z.object({
+  username: z
+    .string({ required_error: "You must have a username." })
+    .regex(/^[\w]*$/, {
+      message: "Your username can only contain letters, numbers and '_'.",
+    })
+    .min(4, { message: "Your username must be longer than 4 characters." })
+    .max(15, { message: "Your username must be shorter than 15 characters." })
+    .trim(),
+  bio: z
+    .string()
+    .max(500, { message: "Bio must be less than 500 characters." })
+    .trim()
+    .optional(),
+});
+
+const profileWithIncludes = Prisma.validator<Prisma.ProfileArgs>()({
+  include: {
+    user: true,
+  },
+});
 
 export const profileRouter = router({
   getAll: publicProcedure
@@ -15,18 +38,23 @@ export const profileRouter = router({
       const { cursor } = input;
       const profiles = await ctx.prisma.profile.findMany({
         take: limit + 1,
+        include: profileWithIncludes.include,
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
           id: "asc",
         },
       });
+      const profilesWithHandles = profiles.map((profile) =>
+        addProfileHandle(profile)
+      );
       let nextCursor: typeof cursor | undefined = undefined;
       if (profiles.length > limit) {
         const nextProfile = profiles.pop();
         nextCursor = nextProfile ? nextProfile.id : undefined;
       }
-      return { profiles, nextCursor };
+      return { profilesWithHandles, nextCursor };
     }),
+
   getByUserId: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
@@ -44,6 +72,7 @@ export const profileRouter = router({
       }
       return profile;
     }),
+
   getByUsername: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
@@ -55,29 +84,9 @@ export const profileRouter = router({
       });
       return profile;
     }),
+
   createOrUpdateProfile: protectedProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-        username: z
-          .string({ required_error: "You must have a username." })
-          .regex(/^[\w]*$/, {
-            message: "Your username can only contain letters, numbers and '_'.",
-          })
-          .min(4, {
-            message: "Your username must be longer than 4 characters.",
-          })
-          .max(15, {
-            message: "Your username must be shorter than 15 characters.",
-          })
-          .trim(),
-        bio: z
-          .string()
-          .max(500, { message: "Bio must be less than 500 characters." })
-          .trim()
-          .nullish(),
-      })
-    )
+    .input({ userId: z.string(), ...NewUserSchema })
     .mutation(async ({ ctx, input }) => {
       const profile = await ctx.prisma.profile.upsert({
         where: {
@@ -100,3 +109,18 @@ export const profileRouter = router({
       return profile;
     }),
 });
+
+export type ProfileWithExtraFields = Prisma.ProfileGetPayload<
+  typeof profileWithIncludes
+>;
+
+function addProfileHandle(profile: ProfileWithExtraFields) {
+  return {
+    ...profile,
+    user: {
+      ...profile.user,
+      username: profile.username,
+      handle: "@" + profile.username,
+    },
+  };
+}

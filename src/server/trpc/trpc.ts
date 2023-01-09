@@ -34,6 +34,6 @@ const isAuthed = t.middleware(({ ctx, next }) => {
 });
 
 /**
- * Protected procedure
+ * Protected procedureA
  **/
 export const protectedProcedure = t.procedure.use(isAuthed);

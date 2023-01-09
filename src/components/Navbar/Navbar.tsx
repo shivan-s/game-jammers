@@ -1,7 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { IoMdHome } from "@react-icons/all-files/io/IoMdHome";
-import { GrScheduleNew } from "@react-icons/all-files/gr/GrScheduleNew";
-import { FaHourglassEnd } from "@react-icons/all-files/fa/FaHourglassEnd";
+import { FaCalendarPlus } from "@react-icons/all-files/fa/FaCalendarPlus";
 import { FaUsers } from "@react-icons/all-files/fa/FaUsers";
 import Link from "next/link";
 import { NavbarItem } from "./navbarItem";
@@ -14,13 +13,8 @@ const navbarItems: INavbarItem[] = [
   },
   {
     url: "/gamejams",
-    label: "Upcoming Jams",
-    icon: GrScheduleNew,
-  },
-  {
-    url: "/gamejams",
-    label: "Past Jams",
-    icon: FaHourglassEnd,
+    label: "Jams",
+    icon: FaCalendarPlus,
   },
   {
     url: "/members",

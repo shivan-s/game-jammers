@@ -1,23 +1,11 @@
 import { type GetServerSidePropsContext, type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { getCsrfToken } from "next-auth/react";
-import { Formik, Form, Field, type FieldAttributes } from "formik";
-import Button from "../../components/button";
+import { Formik, Form } from "formik";
+import Button from "../../components/Button";
 import { trpc } from "../../utils/trpc";
-
-interface INewUser {
-  username: string;
-  bio: string;
-}
-
-const CustomField = (props: FieldAttributes<any>) => {
-  return (
-    <Field
-      className="m-0 block w-full rounded border border-solid border-stone-900 bg-stone-700 bg-clip-border px-4 py-2 transition ease-in-out hover:border-blue-500 hover:bg-stone-600 focus:border-blue-600 focus:outline-none"
-      {...props}
-    />
-  );
-};
+import CustomField from "../../components/CustomField";
+import CustomError from "../../components/CustomError";
 
 const Profile: NextPage = () => {
   const { data: session } = useSession({ required: true });
@@ -35,12 +23,10 @@ const Profile: NextPage = () => {
     console.error(error);
   }
 
-  console.log(profile);
-
   return (
     <>
-      {isError && "Error!"}
-      {isLoading && "Loading"}
+      {isError && <CustomError />}
+      {isLoading && <>Loading...</>}
       {isSuccess && (
         <Formik
           initialValues={{
