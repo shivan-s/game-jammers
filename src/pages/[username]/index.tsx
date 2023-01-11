@@ -7,16 +7,16 @@ import { Loading } from "./_loading";
 import CustomError from "../../components/CustomError";
 
 const User: NextPage = () => {
-  const { query } = useRouter();
+  const router = useRouter();
+  const username = router.query.username as string;
+
   const {
     data: user,
     error,
     isLoading,
     isSuccess,
     isError,
-  } = trpc.user.getByUsername.useQuery(
-    typeof query.username === "string" ? query.username : ""
-  );
+  } = trpc.user.getByUsername.useQuery(username);
 
   if (isError) {
     console.error(error);

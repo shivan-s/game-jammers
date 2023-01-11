@@ -1,6 +1,7 @@
 import { AiFillPlusSquare } from "@react-icons/all-files/ai/AiFillPlusSquare";
 import { FaUsers } from "@react-icons/all-files/fa/FaUsers";
 import { format, formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/router";
 import { type GameJamWithUsers } from "../../server/trpc/router/users";
 import Button from "../Button";
 import ProfileAvatar from "../ProfileAvatar";
@@ -14,6 +15,7 @@ const GameJamWidget = ({
   teams,
   hostUsers,
 }: GameJamWithUsers) => {
+  const router = useRouter();
   return (
     <div key={id} className="flex flex-col rounded-xl bg-stone-700">
       <div className="h-48 rounded-t-xl bg-black">Image of GameJam</div>
@@ -50,7 +52,7 @@ const GameJamWidget = ({
             <div className="text-xs text-neutral-200">
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0)}{" "}
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0) ===
-              1
+                1
                 ? "participant"
                 : "participants"}
             </div>
@@ -76,7 +78,7 @@ const GameJamWidget = ({
           <Button isPrimary={true}>
             <AiFillPlusSquare /> Join
           </Button>
-          <Button>
+          <Button onClick={() => router.push(`/gamejams/${id}`)}>
             <FaUsers /> View Teams
           </Button>
         </div>

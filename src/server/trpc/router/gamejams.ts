@@ -2,6 +2,20 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { formatISO } from "date-fns";
 import NewGameJamSchema from "../../../schema/gamejam";
+import { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
+
+const gameJamWithIncludes = Prisma.validator<Prisma.GameJamArgs>()({
+  include: {
+    hosts: true,
+    hostUsers: { include: { profile: true } },
+    teams: {
+      include: {
+        teamToUser: { include: { user: { include: { profile: true } } } },
+      },
+    },
+  },
+});
 
 export const gameJamRouter = router({
   getAll: publicProcedure
@@ -79,11 +93,7 @@ export const gameJamRouter = router({
       };
       const gameJams = await ctx.prisma.gameJam.findMany({
         where: filter,
-        include: {
-          teams: true,
-          hosts: true,
-          hostUsers: true,
-        },
+        include: gameJamWithIncludes.include,
         orderBy: [{ startDate: "desc" }, { id: "asc" }],
         take: limit + 1,
         cursor: cursor ? { id: cursor } : undefined,
@@ -98,7 +108,11 @@ export const gameJamRouter = router({
         const nextGameJam = gameJams.pop();
         nextCursor = nextGameJam ? nextGameJam.id : undefined;
       }
-      return { gameJams: gameJams, nextCursor, count: gamejamsCount };
+      return {
+        gameJams: gameJams.map((gameJam) => addProfileHandle(gameJam)),
+        nextCursor,
+        count: gamejamsCount,
+      };
     }),
 
   getById: publicProcedure
@@ -106,13 +120,15 @@ export const gameJamRouter = router({
     .query(async ({ ctx, input }) => {
       const gameJam = await ctx.prisma.gameJam.findUnique({
         where: { id: input },
-        include: {
-          hosts: true,
-          hostUsers: true,
-          teams: { include: { teamToUser: { include: { user: true } } } },
-        },
+        include: gameJamWithIncludes.include,
       });
-      return gameJam;
+      if (!gameJam) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Gamejam is not found.",
+        });
+      }
+      return addProfileHandle(gameJam);
     }),
 
   createOrUpdate: protectedProcedure
@@ -126,8 +142,21 @@ export const gameJamRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId, startDate, endDate, name, description } = input;
       const id = input.id || "";
-      // maybe split this into update and create for validation of the user
-      // check if this user is present in the
+      const gameJamCheck = await ctx.prisma.gameJam.findUnique({
+        where: { id: id },
+        include: {
+          hostUsers: true,
+        },
+      });
+      if (
+        gameJamCheck &&
+        !gameJamCheck.hostUsers.map((hostUser) => hostUser.id).includes(userId)
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User does not have permission to edit this Gamejam.",
+        });
+      }
       const gameJam = await ctx.prisma.gameJam.upsert({
         where: {
           id: id,
@@ -158,10 +187,46 @@ export const gameJamRouter = router({
       return gameJam;
     }),
 
-  /* delete: protectedProcedure */
-  /*   .input(z.object({ userId: z.string(), id: z.string() })) */
-  /*   .mutation(async ({ ctx, input }) => { */
-  /*     const { userId, id } = input; */
-  /*     const gameJam = await ctx.prisma.gameJam.delete({ where: { id: id } }); */
-  /*   }), */
+  delete: protectedProcedure
+    .input(z.object({ userId: z.string(), id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId, id } = input;
+      const gameJamCheck = await ctx.prisma.gameJam.findUnique({
+        where: { id: id },
+        include: {
+          hostUsers: true,
+        },
+      });
+      if (
+        gameJamCheck &&
+        !gameJamCheck.hostUsers.map((hostUser) => hostUser.id).includes(userId)
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User does not have permission to edit this Gamejam.",
+        });
+      }
+      const gameJam = await ctx.prisma.gameJam.delete({ where: { id: id } });
+      return gameJam;
+    }),
 });
+
+export type GameJamWithExtraFields = Prisma.GameJamGetPayload<
+  typeof gameJamWithIncludes
+>;
+
+function addProfileHandle(gameJam: GameJamWithExtraFields) {
+  const hostUsers = gameJam.hostUsers.map((hostUser) => {
+    if (hostUser.profile !== null) {
+      return {
+        ...hostUser,
+        username: hostUser.profile.username,
+        handle: "@" + hostUser.profile.username,
+      };
+    }
+  });
+  return {
+    ...gameJam,
+    hostUsers: hostUsers,
+  };
+}

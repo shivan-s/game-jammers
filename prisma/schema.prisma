@@ -167,7 +167,7 @@ model GameJam {
 
   startDate   DateTime
   endDate     DateTime // validation to ensure endDate is after startDate
-  name        String
+  name        String   @unique
   description String
 
   hosts     Organization[]
