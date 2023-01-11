@@ -49,7 +49,6 @@ const NewUser: NextPage = ({ csrfToken }) => {
               <CustomFieldTextArea
                 label="Bio"
                 placeholder="Enter bio"
-                type="text"
                 name="bio"
                 maxLength={500}
               />

@@ -1,20 +1,7 @@
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { formatISO } from "date-fns";
-
-export const NewGameJamSchema = {
-  name: z
-    .string({ required_error: "You must provide a name for the Jam." })
-    .min(4, { message: "Name must be longer than 4 characters." })
-    .max(50, { message: "Name must be shorter than 50 characters." })
-    .trim(),
-  description: z
-    .string()
-    .min(1000, { message: "Description must be less than 1000 characters." })
-    .optional(),
-  startDate: z.string().datetime({ message: "Invalid date entry." }),
-  endDate: z.string().datetime({ message: "Invalid date entry." }),
-};
+import NewGameJamSchema from "../../../schema/gamejam";
 
 export const gameJamRouter = router({
   getAll: publicProcedure
@@ -139,6 +126,8 @@ export const gameJamRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId, startDate, endDate, name, description } = input;
       const id = input.id || "";
+      // maybe split this into update and create for validation of the user
+      // check if this user is present in the
       const gameJam = await ctx.prisma.gameJam.upsert({
         where: {
           id: id,
@@ -168,4 +157,11 @@ export const gameJamRouter = router({
       });
       return gameJam;
     }),
+
+  /* delete: protectedProcedure */
+  /*   .input(z.object({ userId: z.string(), id: z.string() })) */
+  /*   .mutation(async ({ ctx, input }) => { */
+  /*     const { userId, id } = input; */
+  /*     const gameJam = await ctx.prisma.gameJam.delete({ where: { id: id } }); */
+  /*   }), */
 });

@@ -1,22 +1,22 @@
 import { Formik } from "formik";
 import { type GetServerSidePropsContext, type NextPage } from "next";
 import { getCsrfToken, useSession } from "next-auth/react";
-/* import { useRouter } from "next/router"; */
+import { useRouter } from "next/router";
 import { toFormikValidate } from "zod-formik-adapter";
 import CustomFieldInput from "../../components/CustomFieldInput";
 import CustomFieldTextArea from "../../components/CustomFieldTextArea";
 import CustomForm from "../../components/CustomForm";
-import { NewGameJamSchema } from "../../server/trpc/router/gamejams";
 import { trpc } from "../../utils/trpc";
 import { z } from "zod";
+import NewGameJamSchema from "../../schema/gamejam";
 
 const CreateGameJam: NextPage = ({ csrfToken }) => {
-  /* const router = useRouter(); */
+  const router = useRouter();
   const { data: sessionData } = useSession();
   const { mutate: createGameJam } = trpc.gameJam.createOrUpdate.useMutation({
     onSuccess: () => {
       console.log("yay!");
-      /* router.push(`/gameJam`); */
+      router.push(`/gameJam`);
     },
   });
 
@@ -25,21 +25,23 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
       <div className="container flex flex-col gap-12 px-4 py-4">
         <Formik
           initialValues={{
-            startDate: "",
+            startDate: "Hello",
             endDate: "",
             name: "",
             description: "",
           }}
           validate={toFormikValidate(z.object(NewGameJamSchema))}
-          onSubmit={(values) =>
+          onSubmit={(values) => {
+            console.log(values);
             createGameJam({
               userId: sessionData?.user?.id || "",
               ...values,
-            })
-          }
+            });
+          }}
         >
           <CustomForm>
             <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+            <p>Create game jam.</p>
             <CustomFieldInput
               label="Name"
               placeholder="Enter name"
@@ -47,7 +49,6 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
               type="text"
               id="name"
               name="name"
-              required
             />
             <div className="flex flex-wrap gap-2">
               <CustomFieldInput
@@ -55,14 +56,12 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
                 type="date"
                 id="startDate"
                 name="startDate"
-                required
               />
               <CustomFieldInput
                 label="End"
                 type="date"
                 id="endDate"
                 name="endDate"
-                required
               />
             </div>
             <CustomFieldTextArea
@@ -70,8 +69,8 @@ const CreateGameJam: NextPage = ({ csrfToken }) => {
               rows={5}
               maxLength={1000}
               placeholder="Enter description"
-              id="name"
-              name="name"
+              id="description"
+              name="description"
             />
           </CustomForm>
         </Formik>

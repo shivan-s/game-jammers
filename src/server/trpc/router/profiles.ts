@@ -2,22 +2,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { Prisma } from "@prisma/client";
-
-export const NewUserSchema = z.object({
-  username: z
-    .string({ required_error: "You must have a username." })
-    .regex(/^[\w]*$/, {
-      message: "Your username can only contain letters, numbers and '_'.",
-    })
-    .min(4, { message: "Your username must be longer than 4 characters." })
-    .max(15, { message: "Your username must be shorter than 15 characters." })
-    .trim(),
-  bio: z
-    .string()
-    .max(500, { message: "Bio must be less than 500 characters." })
-    .trim()
-    .optional(),
-});
+import NewUserSchema from "../../../schema/profile";
 
 const profileWithIncludes = Prisma.validator<Prisma.ProfileArgs>()({
   include: {
@@ -86,7 +71,7 @@ export const profileRouter = router({
     }),
 
   createOrUpdateProfile: protectedProcedure
-    .input({ userId: z.string(), ...NewUserSchema })
+    .input(z.object({ userId: z.string(), ...NewUserSchema }))
     .mutation(async ({ ctx, input }) => {
       const profile = await ctx.prisma.profile.upsert({
         where: {
