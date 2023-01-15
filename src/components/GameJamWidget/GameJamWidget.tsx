@@ -1,6 +1,8 @@
 import { AiFillPlusSquare } from "@react-icons/all-files/ai/AiFillPlusSquare";
+import { FiEdit } from "@react-icons/all-files/fi/FiEdit";
 import { FaUsers } from "@react-icons/all-files/fa/FaUsers";
 import { format, formatDistanceToNow } from "date-fns";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { type GameJamWithUsers } from "../../server/trpc/router/users";
 import Button from "../Button";
@@ -16,6 +18,8 @@ const GameJamWidget = ({
   hostUsers,
 }: GameJamWithUsers) => {
   const router = useRouter();
+  const { data: sessionData } = useSession();
+
   return (
     <div key={id} className="flex flex-col rounded-xl bg-stone-700">
       <div className="h-48 rounded-t-xl bg-black">Image of GameJam</div>
@@ -24,7 +28,6 @@ const GameJamWidget = ({
           <div className="flex flex-col gap-1">
             <h3 className="truncate text-2xl">{name}</h3>
             <p className="flex flex-wrap gap-1 text-base text-neutral-200">
-              {/* TODO: use set interval - scale for time */}
               {formatDistanceToNow(startDate, {
                 includeSeconds: true,
                 addSuffix: true,
@@ -52,7 +55,7 @@ const GameJamWidget = ({
             <div className="text-xs text-neutral-200">
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0)}{" "}
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0) ===
-                1
+              1
                 ? "participant"
                 : "participants"}
             </div>
@@ -75,6 +78,13 @@ const GameJamWidget = ({
           </>
         </div>
         <div className="flex flex-row-reverse gap-2">
+          {hostUsers
+            .map((hostUser) => hostUser.id)
+            .includes(sessionData?.user?.id || "") && (
+            <Button onClick={() => router.push(`/gamejams/${id}/update`)}>
+              <FiEdit /> Edit Jam
+            </Button>
+          )}
           <Button isPrimary={true}>
             <AiFillPlusSquare /> Join
           </Button>

@@ -4,7 +4,7 @@ import { getCsrfToken } from "next-auth/react";
 import { Formik, Form } from "formik";
 import Button from "../../components/Button";
 import { trpc } from "../../utils/trpc";
-import CustomField from "../../components/CustomField";
+import CustomFieldInput from "../../components/CustomFieldInput";
 import CustomError from "../../components/CustomError";
 
 const Profile: NextPage = () => {
@@ -38,7 +38,7 @@ const Profile: NextPage = () => {
           <Form className="flex flex-col gap-2 rounded bg-stone-700 px-4 py-4">
             <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
             <label htmlFor="username">Username</label>
-            <CustomField
+            <CustomFieldInput
               placeholder="Enter username"
               type="text"
               id="username"
@@ -46,7 +46,7 @@ const Profile: NextPage = () => {
               required
             />
             <label htmlFor="bio">Bio</label>
-            <CustomField
+            <CustomFieldInput
               components={<textarea />}
               placeholder="Enter bio"
               type="text"

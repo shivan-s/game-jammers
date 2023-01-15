@@ -54,10 +54,10 @@ const GameJams: NextPage = () => {
         </div>
         <div className="flex min-w-full max-w-lg flex-col items-center gap-2">
           {isError && <CustomError />}
-          {isLoading && searchQuery && <>Loading...</>}
+          {isLoading && <>Loading...</>}
           {isSuccess && (
             <>
-              <div>
+              <div className="flex flex-col gap-4">
                 {data.pages[0]?.count === 0 && "No jams found."}
                 {data.pages.map(({ gameJams }) =>
                   gameJams.map((gameJam) => {

@@ -1,8 +1,8 @@
 import { type NextPage } from "next";
 import { useRouter } from "next/router";
-import CustomError from "../../components/CustomError";
-import GameJamWidget from "../../components/GameJamWidget";
-import { trpc } from "../../utils/trpc";
+import CustomError from "../../../components/CustomError";
+import GameJamWidget from "../../../components/GameJamWidget";
+import { trpc } from "../../../utils/trpc";
 
 const GameJam: NextPage = () => {
   const router = useRouter();
