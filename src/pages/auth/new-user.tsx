@@ -6,39 +6,62 @@ import { trpc } from "../../utils/trpc";
 import { useRouter } from "next/router";
 import CustomForm from "../../components/CustomForm";
 import CustomFieldInput from "../../components/CustomFieldInput";
-import { NewUserSchema } from "../../server/trpc/router/profiles";
 import CustomFieldTextArea from "../../components/CustomFieldTextArea";
+import ProfileSchema from "../../schema/profile";
+import { z } from "zod";
+import CustomError from "../../components/CustomError";
+import { useEffect } from "react";
 
 const NewUser: NextPage = ({ csrfToken }) => {
   const router = useRouter();
-  const { data: sessionData } = useSession();
-  const { mutate: createProfile } =
-    trpc.profile.createOrUpdateProfile.useMutation({
-      onSuccess: () => {
-        router.push("/profile");
-      },
-    });
+  const { data: session } = useSession();
+  const {
+    data: profile,
+    error,
+    isError,
+    isLoading,
+    isSuccess,
+  } = trpc.profile.getByUserId.useQuery(session?.user?.id || "");
+  const { mutate: createProfile } = trpc.profile.createOrUpdate.useMutation({
+    onSuccess: () => {
+      router.push("/profile");
+    },
+  });
+
+  useEffect(() => {
+    if (profile?.username) {
+      router.push("/profile");
+    }
+  }, [profile]);
+
+  if (isError) {
+    console.error(error);
+    return <CustomError />;
+  }
 
   return (
     <>
-      <div className="container flex max-w-sm flex-col gap-12 px-4 py-4">
-        <Formik
-          initialValues={{
-            username: "",
-            bio: "",
-          }}
-          validate={toFormikValidate(NewUserSchema)}
-          onSubmit={(values) =>
-            createProfile({
-              userId: sessionData?.user?.id || "",
-              ...values,
-            })
-          }
-        >
-          <CustomForm>
-            <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-            <p className="text-neutral-200">Just to complete your profile...</p>
-            <div className="flex flex-col gap-2">
+      {isLoading && <>Loading...</>}
+      {isSuccess && !profile && (
+        <div className="container flex max-w-lg flex-col gap-12 py-4">
+          <Formik
+            initialValues={{
+              username: "",
+              bio: "",
+            }}
+            validate={toFormikValidate(z.object(ProfileSchema))}
+            onSubmit={(values) =>
+              createProfile({
+                userId: session?.user?.id || "",
+                ...values,
+              })
+            }
+          >
+            <CustomForm>
+              <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+              <p className="text-neutral-200">
+                You need to complete your profile...
+              </p>
               <CustomFieldInput
                 label="Username"
                 placeholder="Enter username"
@@ -52,10 +75,10 @@ const NewUser: NextPage = ({ csrfToken }) => {
                 name="bio"
                 maxLength={500}
               />
-            </div>
-          </CustomForm>
-        </Formik>
-      </div>
+            </CustomForm>
+          </Formik>
+        </div>
+      )}
     </>
   );
 };

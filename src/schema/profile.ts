@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const NewUserSchema = {
+const ProfileSchema = {
   username: z
     .string({ required_error: "You must have a username." })
     .regex(/^[\w]*$/, {
@@ -16,4 +16,4 @@ const NewUserSchema = {
     .optional(),
 };
 
-export default NewUserSchema;
+export default ProfileSchema;

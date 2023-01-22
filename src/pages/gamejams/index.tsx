@@ -13,6 +13,7 @@ const GameJams: NextPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("all");
   const router = useRouter();
+  const query;
 
   const {
     data,
@@ -40,7 +41,7 @@ const GameJams: NextPage = () => {
       <div className="container flex flex-col gap-12 px-4 py-4">
         <div className="flex flex-wrap gap-2">
           <SearchInput
-            placeholder="Search members"
+            placeholder="Search jams"
             handleSubmit={setSearchQuery}
           />
           <TimeFrameToggle

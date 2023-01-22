@@ -13,11 +13,11 @@ import { type IGameJamForm } from "./interface";
 import Button from "../../components/Button";
 import Box from "../../components/Box";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
-import Dropzone from "react-dropzone";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import AsyncSelect from "react-select/async";
 // below
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import CustomDropZone from "../../components/CustomDropZone";
 
 async function uploadImage(key: string, body: any) {
   const client = new S3Client({ region: process.env.REGION });
@@ -38,7 +38,6 @@ async function uploadImage(key: string, body: any) {
 
 const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
   const router = useRouter();
-  const [previewImage, setPreviewImage] = useState();
   const [globalSearchValue, setGlobalSearchValue] = useState<string>("");
   const { data: sessionData } = useSession();
   const [hosts, setHosts] = useState({
@@ -51,21 +50,6 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
   const { mutate: deleteGameJam } = trpc.gameJam.delete.useMutation({
     onSuccess: () => router.push(`/gamejams/`),
   });
-
-  const ACCEPTED_FILES = [
-    "image/png",
-    "image/x-png",
-    "image/jpg",
-    "image/jpeg",
-  ];
-
-  const handleOnDrop = useCallback((acceptedFile) => {
-    setPreviewImage(
-      Object.assign(acceptedFile, {
-        preview: URL.createObjectURL(acceptedFile),
-      })
-    );
-  }, []);
 
   const { data, error, isSuccess, isError } = trpc.user.getAll.useQuery(
     {
@@ -91,6 +75,8 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
       console.error(error);
     }
   };
+
+  // TODO: date time range https://projects.wojtekmaj.pl/react-datetimerange-picker/
 
   // TODO: fix listing the hosts.
   const handleOnChange = (e) => {
@@ -158,29 +144,7 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
             id="description"
             name="description"
           />
-          <Dropzone
-            multiple={false}
-            accept={ACCEPTED_FILES}
-            onDrop={handleOnDrop}
-          >
-            {({ getRootProps, getInputProps }) => (
-              <div
-                className="flex items-center justify-center rounded-xl border-2 border-dashed border-stone-500 p-4 hover:bg-stone-600"
-                {...getRootProps()}
-              >
-                <input {...getInputProps()} />
-                <p>Drop file here.</p>
-              </div>
-            )}
-          </Dropzone>
-          {previewImage && (
-            <img
-              src={previewImage.preview}
-              onLoad={() => {
-                URL.revokeObjectURL(file.preview);
-              }}
-            />
-          )}
+          <CustomDropZone />
         </CustomForm>
       </Formik>
       {gameJam && (

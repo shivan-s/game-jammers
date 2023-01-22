@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { type Dispatch, type SetStateAction } from "react";
 
 const timeFrames = ["all", "current", "previous", "upcoming"] as const;
@@ -13,10 +14,12 @@ const TimeFrameToggle = ({
   selectedTimeFrame,
   handleClick,
 }: ITimeFrameToggle) => {
+  const router = useRouter();
   return (
     <>
       <div className="flex space-x-0 divide-x divide-stone-700">
         {timeFrames.map((timeFrame, idx) => {
+          /* router.push(`/gamejam?frame=${timeFrame}`); */
           return (
             <button
               key={idx}

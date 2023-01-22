@@ -82,8 +82,6 @@ model Profile {
   userId   String  @unique
   username String  @unique
   bio      String?
-  name     String?
-  image    String?
 }
 
 enum Role {
@@ -124,28 +122,31 @@ model UserBlocked {
   @@id([blockerId, blockedId])
 }
 
-model Tag {
+model TagCategory {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   name     String   @unique
-  users    User[]
-  subtags  SubTag[]
+  tags     Tag[]
   tagColor TagColor
 }
 
-model SubTag {
+model Tag {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name  String @unique
-  tag   Tag    @relation(fields: [tagId], references: [id])
-  tagId String
+  name          String
+  tagCategory   TagCategory @relation(fields: [tagCategoryId], references: [id])
+  tagCategoryId String
+  users         User[]
+
+  @@unique([tagCategoryId, name])
 }
 
 enum TagColor {
+  BLUE
   GREEN
   YELLOW
 }
@@ -169,6 +170,7 @@ model GameJam {
   endDate     DateTime // validation to ensure endDate is after startDate
   name        String   @unique
   description String
+  image       String?
 
   hosts     Organization[]
   hostUsers User[]

@@ -3,11 +3,11 @@ import { FaUserFriends } from "@react-icons/all-files/fa/FaUserFriends";
 import Link from "next/link";
 import Button from "../../components/Button";
 import { type DetailUserExtraFields } from "../../server/trpc/router/users";
+import DisplayTags from "../DisplayTags";
 import ProfileAvatar from "../ProfileAvatar";
 import SkillLevelTag from "../SkillLevelTag";
 import GameJamCount from "./gameJamCount";
 import UserConnections from "./userConnections";
-import UserDisplayTags from "./userDisplayTags";
 
 const ProfileWidget = (
   user: DetailUserExtraFields & { handle: string } & {
@@ -39,8 +39,10 @@ const ProfileWidget = (
         <div>{user.connections && <UserConnections {...user} />}</div>
       </div>
       <div className="flex flex-col justify-between gap-2 px-4 py-4">
-        <div>{<SkillLevelTag {...user} />}</div>
-        <div>{user.tags && <UserDisplayTags {...user} />}</div>
+        <div className="flex flex-wrap gap-3">
+          <div>{<SkillLevelTag skillLevel={user.skillLevel} />}</div>
+          <div>{user.tags && <DisplayTags tags={user.tags} />}</div>
+        </div>
         <div className="flex flex-row-reverse gap-2">
           <Button isPrimary={true}>
             <FaUserFriends /> Connect

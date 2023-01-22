@@ -1,9 +1,10 @@
-import { router, publicProcedure } from "../trpc";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { type User } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { isPast, isFuture } from "date-fns";
+import UserSchema from "../../../schema/user";
 
 const gameJamWithInclude = Prisma.validator<Prisma.GameJamArgs>()({
   include: {
@@ -40,7 +41,7 @@ const detailUserWithInclude = Prisma.validator<Prisma.UserArgs>()({
         },
       },
     },
-    tags: true,
+    tags: { include: { tagCategory: true } },
   },
 });
 
@@ -113,6 +114,24 @@ export const userRouter = router({
       const userWithHandle = addUserHandle(userWithConnections);
       // TODO: fix types
       return divideGameJams(userWithHandle);
+    }),
+
+  updateById: protectedProcedure
+    .input(z.object({ id: z.string(), ...UserSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const { id, name, image, skillLevel, tags } = input;
+      const user = await ctx.prisma.user.update({
+        where: {
+          id: id,
+        },
+        data: {
+          name: name,
+          image: image,
+          skillLevel: skillLevel,
+          tags: tags,
+        },
+      });
+      return user;
     }),
 });
 

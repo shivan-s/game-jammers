@@ -2,7 +2,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { Prisma } from "@prisma/client";
-import NewUserSchema from "../../../schema/profile";
+import ProfileSchema from "../../../schema/profile";
 
 const profileWithIncludes = Prisma.validator<Prisma.ProfileArgs>()({
   include: {
@@ -46,15 +46,9 @@ export const profileRouter = router({
       const profile = await ctx.prisma.profile.findUnique({
         where: { userId: input },
         include: {
-          user: true,
+          user: { include: { tags: { include: { tagCategory: true } } } },
         },
       });
-      if (!profile) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User is not found",
-        });
-      }
       return profile;
     }),
 
@@ -67,11 +61,17 @@ export const profileRouter = router({
           user: true,
         },
       });
+      if (!profile) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User is not found",
+        });
+      }
       return profile;
     }),
 
-  createOrUpdateProfile: protectedProcedure
-    .input(z.object({ userId: z.string(), ...NewUserSchema }))
+  createOrUpdate: protectedProcedure
+    .input(z.object({ userId: z.string(), ...ProfileSchema }))
     .mutation(async ({ ctx, input }) => {
       const profile = await ctx.prisma.profile.upsert({
         where: {
