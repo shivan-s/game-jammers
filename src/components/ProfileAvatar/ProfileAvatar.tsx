@@ -3,28 +3,20 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../../components/tooltip";
-import Image from "next/image";
-import { useRouter } from "next/router";
+import ProfileImage from "./ProfileImage";
 
 const ProfileAvatar = ({
   imageSize,
   user,
   ringColorClassName,
 }: IProfileAvatar) => {
-  const router = useRouter();
-  const width = Number(imageSize);
-  const height = Number(imageSize);
   return (
     <Tooltip>
       <TooltipTrigger>
-        <Image
-          className={`rounded-full ring-4 ${ringColorClassName || "ring-current"
-            }`}
-          width={width}
-          height={height}
-          alt={user.username}
-          src={user.image}
-          onClick={() => router.push(`/${user.username}`)}
+        <ProfileImage
+          imageSize={imageSize}
+          user={user}
+          ringColorClassName={ringColorClassName}
         />
       </TooltipTrigger>
       <TooltipContent>

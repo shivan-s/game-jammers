@@ -1,5 +1,12 @@
 import { router, publicProcedure } from "../trpc";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+
+export const TagWithInclude = Prisma.validator<Prisma.TagArgs>()({
+  include: {
+    tagCategory: true,
+  },
+});
 
 export const tagRouter = router({
   getAll: publicProcedure
@@ -12,9 +19,10 @@ export const tagRouter = router({
       const q = input.q || "";
       const tags = await ctx.prisma.tag.findMany({
         where: {
-          name: { contains: q },
+          name: { contains: q, mode: "insensitive" },
         },
-        include: { tagCategory: true },
+        include: TagWithInclude.include,
+        orderBy: [{ name: "asc" }],
       });
       return tags;
     }),

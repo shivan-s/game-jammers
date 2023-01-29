@@ -13,7 +13,7 @@ const GameJams: NextPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("all");
   const router = useRouter();
-  const query;
+  /* const query = router.query; */
 
   const {
     data,

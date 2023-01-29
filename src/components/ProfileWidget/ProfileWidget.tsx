@@ -1,5 +1,6 @@
 import { FaLocationArrow } from "@react-icons/all-files/fa/FaLocationArrow";
 import { FaUserFriends } from "@react-icons/all-files/fa/FaUserFriends";
+import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import Button from "../../components/Button";
 import { type DetailUserExtraFields } from "../../server/trpc/router/users";
@@ -34,7 +35,11 @@ const ProfileWidget = (
               <p className="text-base">{user.handle}</p>
             </div>
           </div>
-          <p className="text-base text-neutral-300">{user.bio}</p>
+          <p className="text-base text-neutral-300">{user.profile.bio}</p>
+          <p className="text-base text-neutral-300">
+            Member for{" "}
+            {formatDistanceToNow(user.dateJoined, { addSuffix: false })}.
+          </p>
         </div>
         <div>{user.connections && <UserConnections {...user} />}</div>
       </div>

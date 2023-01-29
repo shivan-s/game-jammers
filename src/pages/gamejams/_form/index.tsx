@@ -3,21 +3,19 @@ import { type GetServerSidePropsContext } from "next";
 import { getCsrfToken, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toFormikValidate } from "zod-formik-adapter";
-import CustomFieldInput from "../../components/CustomFieldInput";
-import CustomFieldTextArea from "../../components/CustomFieldTextArea";
-import CustomForm from "../../components/CustomForm";
-import { trpc } from "../../utils/trpc";
+import CustomFieldInput from "../../../components/CustomFieldInput";
+import CustomFieldTextArea from "../../../components/CustomFieldTextArea";
+import CustomForm from "../../../components/CustomForm";
+import { trpc } from "../../../utils/trpc";
 import { z } from "zod";
-import NewGameJamSchema from "../../schema/gamejam";
-import { type IGameJamForm } from "./interface";
-import Button from "../../components/Button";
-import Box from "../../components/Box";
+import NewGameJamSchema from "../../../schema/gamejam";
+import { type IGameJamForm } from "../interface";
+import Button from "../../../components/Button";
+import Box from "../../../components/Box";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
-import { useState } from "react";
-import AsyncSelect from "react-select/async";
-// below
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import CustomDropZone from "../../components/CustomDropZone";
+import CustomDropZone from "../../../components/CustomDropZone";
+import HostSelect from "./_hostSelect";
 
 async function uploadImage(key: string, body: any) {
   const client = new S3Client({ region: process.env.REGION });
@@ -38,12 +36,8 @@ async function uploadImage(key: string, body: any) {
 
 const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
   const router = useRouter();
-  const [globalSearchValue, setGlobalSearchValue] = useState<string>("");
   const { data: sessionData } = useSession();
-  const [hosts, setHosts] = useState({
-    ...sessionData?.user,
-    label: sessionData?.user?.name,
-  });
+
   const { mutate: createGameJam } = trpc.gameJam.createOrUpdate.useMutation({
     onSuccess: ({ id }) => router.push(`/gamejams/${id}`),
   });
@@ -51,37 +45,12 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
     onSuccess: () => router.push(`/gamejams/`),
   });
 
-  const { data, error, isSuccess, isError } = trpc.user.getAll.useQuery(
-    {
-      cursor: null,
-      q: globalSearchValue,
-    },
-    { enabled: globalSearchValue !== "" }
-  );
-
-  const handleOnLoadOptions = (searchValue, callback) => {
-    setGlobalSearchValue(searchValue);
-    if (isSuccess && data) {
-      const users = data.users.map((user) => ({
-        ...user,
-        label: user.username,
-      }));
-      const filteredOptions = users.filter((user) =>
-        user.label.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      callback(filteredOptions);
-    }
-    if (isError) {
-      console.error(error);
-    }
-  };
+  /* const sessionUserId = sessionData?.user?.id || ""; */
+  /* const { data: sessionUser } = trpc.user.getById.useQuery(sessionUserId); */
 
   // TODO: date time range https://projects.wojtekmaj.pl/react-datetimerange-picker/
 
   // TODO: fix listing the hosts.
-  const handleOnChange = (e) => {
-    setHosts([...hosts, e.target.value]);
-  };
 
   return (
     <>
@@ -91,10 +60,15 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
           endDate: gameJam ? gameJam.endDate : "",
           name: gameJam ? gameJam.name : "",
           description: gameJam ? gameJam.description : "",
+          hosts: gameJam
+            ? gameJam.hostUsers.map((host) => ({
+                value: host,
+                label: host.handle,
+              }))
+            : [],
         }}
         validate={toFormikValidate(z.object(NewGameJamSchema))}
         onSubmit={(values) => {
-          console.log(values);
           createGameJam({
             id: gameJam?.id,
             userId: sessionData?.user?.id || "",
@@ -105,15 +79,7 @@ const GameJamForm = ({ csrfToken, gameJam }: IGameJamForm) => {
         <CustomForm>
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
           <p>Create game jam.</p>
-          <label>
-            <strong>Hosts</strong>
-            <AsyncSelect
-              value={hosts}
-              loadOptions={handleOnLoadOptions}
-              isMulti
-              onChange={handleOnChange}
-            />
-          </label>
+          <HostSelect />
           <CustomFieldInput
             label="Name"
             placeholder="Enter name"

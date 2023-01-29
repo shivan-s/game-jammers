@@ -1,6 +1,8 @@
-import { type GameJam } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
+
+type GameJameWithIncludes = Prisma.PromiseReturnType<typeof getById>;
 
 interface IGameJamForm {
   csrfToken?: string;
-  gameJam?: GameJam;
+  gameJam?: GameJameWithIncludes;
 }

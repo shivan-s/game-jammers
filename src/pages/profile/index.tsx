@@ -1,3 +1,4 @@
+import { formatDistanceToNow, format } from "date-fns";
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -66,6 +67,17 @@ const Profile: NextPage = () => {
                   </div>
                 </div>
                 <BaseInput
+                  label="Date joined"
+                  name="dateJoined"
+                  disabled
+                  value={`${format(
+                    profile.user.dateJoined,
+                    "MMMM do yyyy"
+                  )} (${formatDistanceToNow(profile.user.dateJoined, {
+                    addSuffix: true,
+                  })})`}
+                />
+                <BaseInput
                   label="Username"
                   name="username"
                   disabled
@@ -73,7 +85,7 @@ const Profile: NextPage = () => {
                   placeholder="Username empty"
                 />
                 <BaseInput
-                  label="Display Name"
+                  label="Display name"
                   name="displayName"
                   disabled
                   value={session.user.name || ""}

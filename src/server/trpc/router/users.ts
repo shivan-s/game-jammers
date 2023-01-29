@@ -4,7 +4,7 @@ import { type User } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { isPast, isFuture } from "date-fns";
-import UserSchema from "../../../schema/user";
+import { EditUserProfileSchema } from "../../../schema/user";
 
 const gameJamWithInclude = Prisma.validator<Prisma.GameJamArgs>()({
   include: {
@@ -58,12 +58,11 @@ export const userRouter = router({
       const { cursor } = input;
       const q = input.q || "";
       const limit = input.limit ?? 50;
-      const filter = {
-        name: { contains: q },
-        NOT: [{ profile: null }],
-      };
       const users = await ctx.prisma.user.findMany({
-        where: filter,
+        where: {
+          name: { contains: q, mode: "insensitive" },
+          NOT: [{ profile: null }],
+        },
         include: listUserWithInclude.include,
         take: limit + 1,
         cursor: cursor ? { id: cursor } : undefined,
@@ -73,7 +72,10 @@ export const userRouter = router({
       });
 
       const usersCount = await ctx.prisma.user.count({
-        where: filter,
+        where: {
+          name: { contains: q, mode: "insensitive" },
+          NOT: [{ profile: null }],
+        },
       });
 
       const usersWithHandles = users.map((user) => addUserHandle(user));
@@ -97,6 +99,23 @@ export const userRouter = router({
   /*   }, */
   /* }) */
 
+  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: input },
+      include: detailUserWithInclude.include,
+    });
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User is not found",
+      });
+    }
+    const userWithConnections = addUserConnections(user);
+    const userWithHandle = addUserHandle(userWithConnections);
+    // TODO: fix types
+    return divideGameJams(userWithHandle);
+  }),
+
   getByUsername: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
@@ -117,9 +136,9 @@ export const userRouter = router({
     }),
 
   updateById: protectedProcedure
-    .input(z.object({ id: z.string(), ...UserSchema }))
+    .input(z.object(EditUserProfileSchema))
     .mutation(async ({ ctx, input }) => {
-      const { id, name, image, skillLevel, tags } = input;
+      const { id, name, image, skillLevel, username, bio, tags } = input;
       const user = await ctx.prisma.user.update({
         where: {
           id: id,
@@ -128,7 +147,8 @@ export const userRouter = router({
           name: name,
           image: image,
           skillLevel: skillLevel,
-          tags: tags,
+          tags: { set: tags || [] },
+          profile: { update: { username: username, bio: bio } },
         },
       });
       return user;

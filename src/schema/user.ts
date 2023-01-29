@@ -1,6 +1,7 @@
 import { z } from "zod";
+import ProfileSchema from "./profile";
 
-const UserSchema = {
+export const UserSchema = {
   name: z
     .string({ required_error: "You must have a username." })
     .regex(/[\w]*/, {
@@ -24,3 +25,10 @@ const UserSchema = {
 };
 
 export default UserSchema;
+
+export const EditUserProfileSchema = {
+  id: z.string(),
+  ...UserSchema,
+  ...ProfileSchema,
+  tags: z.array(z.object({ id: z.string() })),
+};

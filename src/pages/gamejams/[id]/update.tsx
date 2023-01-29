@@ -16,14 +16,14 @@ const UpdateGameJam: NextPage = () => {
     isError,
   } = trpc.gameJam.getById.useQuery(id);
 
-  if (error) {
+  if (isError) {
     console.error(error);
+    return <CustomError />;
   }
 
   return (
     <>
-      <div className="container flex flex-col gap-12 px-4 py-4">
-        {isError && <CustomError />}
+      <div className="container flex flex-col gap-12 p-4">
         {isLoading && <>Loading...</>}
         {isSuccess && gameJam && <GameJamForm gameJam={gameJam} />}
       </div>
