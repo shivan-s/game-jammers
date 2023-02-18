@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import { trpc } from "../../utils/trpc";
 import ProfileWidget from "../../components/ProfileWidget";
 import { GameJams } from "./_gameJams";
-import { Loading } from "./_loading";
 import CustomError from "../../components/CustomError";
+import LoadingCircle from "../../components/LoadingCircle";
 
 const User: NextPage = () => {
   const router = useRouter();
@@ -24,9 +24,9 @@ const User: NextPage = () => {
 
   return (
     <>
-      <div className="container flex flex-col gap-12 px-4 py-4 md:w-full">
+      <div className="container flex flex-col gap-12 px-4 py-4">
         {isError && <CustomError />}
-        {isLoading && <Loading />}
+        {isLoading && <LoadingCircle />}
         {isSuccess && user && (
           <>
             <ProfileWidget {...user} />

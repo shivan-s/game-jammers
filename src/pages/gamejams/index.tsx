@@ -38,7 +38,7 @@ const GameJams: NextPage = () => {
 
   return (
     <>
-      <div className="container flex flex-col gap-12 px-4 py-4">
+      <div className="container flex flex-col gap-12 p-4">
         <div className="flex flex-wrap gap-2">
           <SearchInput
             placeholder="Search jams"
