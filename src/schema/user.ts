@@ -27,8 +27,8 @@ export const UserSchema = {
 export default UserSchema;
 
 export const EditUserProfileSchema = {
-  id: z.string(),
   ...UserSchema,
   ...ProfileSchema,
+  id: z.string(),
   tags: z.array(z.object({ id: z.string() })),
 };

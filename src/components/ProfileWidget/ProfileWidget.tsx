@@ -1,20 +1,23 @@
 import { FaLocationArrow } from "@react-icons/all-files/fa/FaLocationArrow";
 import { FaUserFriends } from "@react-icons/all-files/fa/FaUserFriends";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Button from "../../components/Button";
-import { type DetailUserExtraFields } from "../../server/trpc/router/users";
+import { type DetailUserExtraFields } from "../../server/trpc/router/users/types";
 import DisplayTags from "../DisplayTags";
 import ProfileAvatar from "../ProfileAvatar";
 import SkillLevelTag from "../SkillLevelTag";
 import GameJamCount from "./gameJamCount";
 import UserConnections from "./userConnections";
+import UpdateProfileModal from "./updateProfileModal";
 
 const ProfileWidget = (
   user: DetailUserExtraFields & { handle: string } & {
     connections: DetailUserExtraFields[];
   }
 ) => {
+  const { data: session } = useSession();
   return (
     <div className="flex flex-col divide-y rounded-xl bg-stone-700">
       <div className="flex flex-wrap justify-between">
@@ -37,9 +40,12 @@ const ProfileWidget = (
           </div>
           <p className="text-base text-neutral-300">{user.profile.bio}</p>
           <p className="text-base text-neutral-300">
-            Member for{" "}
-            {formatDistanceToNow(user.dateJoined, { addSuffix: false })}.
+            Joined {format(user.dateJoined, "MMMM do yyyy")} (
+            {formatDistanceToNow(user.dateJoined, { addSuffix: true })})
           </p>
+          {session && session.user && user.id === session.user.id && (
+            <UpdateProfileModal />
+          )}
         </div>
         <div>{user.connections && <UserConnections {...user} />}</div>
       </div>

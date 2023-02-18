@@ -4,6 +4,7 @@ import { trpc } from "../utils/trpc";
 import ProfileWidget from "../components/ProfileWidget";
 import { useState } from "react";
 import SearchInput from "../components/SearchInput";
+import LoadingCircle from "../components/LoadingCircle";
 
 const Members: NextPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -38,7 +39,7 @@ const Members: NextPage = () => {
         />
         <div className="flex min-w-full max-w-lg flex-col items-center gap-2">
           {isError && <>Error!</>}
-          {isLoading && searchQuery && <>Loading...</>}
+          {isLoading && searchQuery && <LoadingCircle />}
           {isSuccess && (
             <>
               <div>
@@ -56,8 +57,8 @@ const Members: NextPage = () => {
                 {isFetchingNextPage
                   ? "Loading more..."
                   : hasNextPage
-                  ? "Load more"
-                  : "Nothing more to load"}
+                    ? "Load more"
+                    : "Nothing more to load"}
               </Button>
               <div>{isFetching && !isFetchingNextPage && "Fetching..."}</div>
             </>

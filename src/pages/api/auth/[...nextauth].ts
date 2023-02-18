@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
   providers: [
     DiscordProvider({
@@ -35,7 +34,6 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_ID,
       clientSecret: env.GOOGLE_SECRET,
     }),
-    // ...add more providers here
   ],
   pages: {
     newUser: "auth/new-user",

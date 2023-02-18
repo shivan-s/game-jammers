@@ -1,25 +1,25 @@
 import { SkillLevel } from "@prisma/client";
 import CustomSelect from "../../../components/CustomSelect";
 import getTagColor from "../../../utils/tagColors";
+import capitalize from "../../../utils/capitalize";
 
 const SkillLevelSelect = () => {
   return (
     <CustomSelect
       label="Skill Level"
       name="skillLevel"
-      options={Object.keys(SkillLevel).map((o) => ({
+      options={Object.keys(SkillLevel).map((o: string) => ({
         value: o,
-        label: o.charAt(0).toUpperCase() + o.slice(1),
+        label: capitalize(o),
       }))}
       classNames={{
         singleValue: () => {
           const { bgColor, textColor } = getTagColor("");
-          return `rounded-full ${bgColor} ${textColor} py-1 px-2 font-semibold`;
+          return `${bgColor} ${textColor} w-fit rounded-full py-1 px-2 font-semibold`;
         },
       }}
       placeholder="Skill Level"
       isClearable={false}
-      isSearchable
       unstyled
     />
   );

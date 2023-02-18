@@ -8,12 +8,12 @@ import { trpc } from "../../utils/trpc";
 import TimeFrameToggle, { type TimeFrame } from "./_timeFrameToggle";
 import { BsPlusSquare } from "@react-icons/all-files/bs/BsPlusSquare";
 import { useRouter } from "next/router";
+import LoadingCircle from "../../components/LoadingCircle";
 
 const GameJams: NextPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("all");
   const router = useRouter();
-  /* const query = router.query; */
 
   const {
     data,
@@ -55,7 +55,7 @@ const GameJams: NextPage = () => {
         </div>
         <div className="flex min-w-full max-w-lg flex-col items-center gap-2">
           {isError && <CustomError />}
-          {isLoading && <>Loading...</>}
+          {isLoading && <LoadingCircle />}
           {isSuccess && (
             <>
               <div className="flex flex-col gap-4">
@@ -74,8 +74,8 @@ const GameJams: NextPage = () => {
                 {isFetchingNextPage
                   ? "Loading more"
                   : hasNextPage
-                  ? "Load more"
-                  : "Nothing more to load"}
+                    ? "Load more"
+                    : "Nothing more to load"}
               </Button>
               <div>{isFetching && !isFetchingNextPage && "Fetching..."}</div>
             </>

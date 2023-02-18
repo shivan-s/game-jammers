@@ -20,8 +20,6 @@ const GameJam: NextPage = () => {
     console.log(error);
   }
 
-  console.log(gameJam);
-
   return (
     <>
       <div className="container flex flex-col gap-12 px-4 py-4">

@@ -7,8 +7,10 @@ services:
   db:
     container_name: gamejammers_db
     image: postgres:14
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=pass
     env_file:
       - .env
     volumes:
@@ -22,21 +24,20 @@ services:
   app:
     container_name: gamejammers_app
     image: gamejammers:dev
-    platform: "linux/amd64"
     depends_on:
       - db
     build:
       context: .
-      dockerfile: ./.docker/dev/Dockerfile
-      args:
-        NEXT_PUBLIC_CLIENTVAR: "clientvar"
     ports:
       - ${APP_PORT:-3000}:3000
+      - ${PRISMA_PORT:-5555}:5555
+    volumes:
+      - .:/code/
     networks:
       - internal_network
       - external_network
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://user:pass@db/db
     env_file:
       - .env
     restart: unless-stopped

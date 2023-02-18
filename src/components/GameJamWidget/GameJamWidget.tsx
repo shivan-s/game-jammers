@@ -7,9 +7,11 @@ import { useRouter } from "next/router";
 import { type GameJamWithUsers } from "../../server/trpc/router/users";
 import Button from "../Button";
 import ProfileAvatar from "../ProfileAvatar";
+import Image from "next/image";
 
 const GameJamWidget = ({
   id,
+  image,
   startDate,
   endDate,
   description,
@@ -22,7 +24,12 @@ const GameJamWidget = ({
 
   return (
     <div key={id} className="flex flex-col rounded-xl bg-stone-700">
-      <div className="h-48 rounded-t-xl bg-black">Image of GameJam</div>
+      {image ? (
+        <Image className="h-48 rounded-t-xl" src={image} alt={name} />
+      ) : (
+        <div className="h-48 rounded-t-xl bg-black" />
+        // TODO: come up with a fall back image
+      )}
       <div className="flex flex-wrap justify-between">
         <div className="flex px-4 py-4">
           <div className="flex flex-col gap-1">
@@ -55,7 +62,7 @@ const GameJamWidget = ({
             <div className="text-xs text-neutral-200">
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0)}{" "}
               {teams.reduce((acc, team) => acc + team.teamToUser.length, 0) ===
-              1
+                1
                 ? "participant"
                 : "participants"}
             </div>
@@ -81,10 +88,10 @@ const GameJamWidget = ({
           {hostUsers
             .map((hostUser) => hostUser.id)
             .includes(sessionData?.user?.id || "") && (
-            <Button onClick={() => router.push(`/gamejams/${id}/update`)}>
-              <FiEdit /> Edit Jam
-            </Button>
-          )}
+              <Button onClick={() => router.push(`/gamejams/${id}/update`)}>
+                <FiEdit /> Edit Jam
+              </Button>
+            )}
           <Button isPrimary={true}>
             <AiFillPlusSquare /> Join
           </Button>

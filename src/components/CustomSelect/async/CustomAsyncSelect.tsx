@@ -9,7 +9,7 @@ const CustomAsyncSelect = ({
   classNames,
   ...props
 }: ICustomAsyncSelect) => {
-  const [field] = useField(props);
+  const [field, meta] = useField(props);
   const { setFieldValue } = useFormikContext();
   const { name } = props;
 
@@ -18,22 +18,27 @@ const CustomAsyncSelect = ({
   };
 
   return (
-    <label>
-      <strong>{label}</strong>
-      <AsyncSelect
-        {...props}
-        {...field}
-        classNames={{
-          ...CustomClassNames,
-          ...classNames,
-        }}
-        onChange={handleOnChange}
-        components={{ ...extraComponents }}
-        defaultOptions
-        cacheOptions
-        unstyled
-      />
-    </label>
+    <>
+      <label>
+        <strong>{label}</strong>
+        <AsyncSelect
+          {...props}
+          {...field}
+          classNames={{
+            ...CustomClassNames(meta),
+            ...classNames,
+          }}
+          onChange={handleOnChange}
+          components={{ ...extraComponents }}
+          defaultOptions
+          cacheOptions
+          unstyled
+        />
+      </label>
+      {meta.touched && meta.error && (
+        <div className="text-sm text-red-300">{meta.error}</div>
+      )}
+    </>
   );
 };
 

@@ -1,49 +1,13 @@
-import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { router, publicProcedure, protectedProcedure } from "../../trpc";
 import { z } from "zod";
-import { type User } from "@prisma/client";
-import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { isPast, isFuture } from "date-fns";
-import { EditUserProfileSchema } from "../../../schema/user";
-
-const gameJamWithInclude = Prisma.validator<Prisma.GameJamArgs>()({
-  include: {
-    teams: {
-      include: { teamToUser: { include: { user: true } } },
-    },
-    hostUsers: true,
-  },
-});
-
-const listUserWithInclude = Prisma.validator<Prisma.UserArgs>()({
-  include: {
-    profile: true,
-    connectionRequestSent: {
-      where: { accepted: true },
-      include: { receiver: true },
-    },
-    connectionRequestReceived: {
-      where: { accepted: true },
-      include: { sender: true },
-    },
-  },
-});
-
-const detailUserWithInclude = Prisma.validator<Prisma.UserArgs>()({
-  include: {
-    ...listUserWithInclude.include,
-    teamToUser: {
-      include: {
-        team: {
-          include: {
-            gameJam: gameJamWithInclude,
-          },
-        },
-      },
-    },
-    tags: { include: { tagCategory: true } },
-  },
-});
+import { EditUserProfileSchema } from "../../../../schema/user";
+import {
+  type DetailUserExtraFields,
+  detailUserWithInclude,
+  listUserWithInclude,
+} from "./types";
+import { addUserConnections, addUserHandle, divideGameJams } from "./helpers";
 
 export const userRouter = router({
   getAll: publicProcedure
@@ -111,8 +75,9 @@ export const userRouter = router({
       });
     }
     const userWithConnections = addUserConnections(user);
-    const userWithHandle = addUserHandle(userWithConnections);
-    // TODO: fix types
+    const userWithHandle = addUserHandle(
+      userWithConnections
+    ) as DetailUserExtraFields;
     return divideGameJams(userWithHandle);
   }),
 
@@ -130,8 +95,9 @@ export const userRouter = router({
         });
       }
       const userWithConnections = addUserConnections(user);
-      const userWithHandle = addUserHandle(userWithConnections);
-      // TODO: fix types
+      const userWithHandle = addUserHandle(
+        userWithConnections
+      ) as DetailUserExtraFields;
       return divideGameJams(userWithHandle);
     }),
 
@@ -139,6 +105,13 @@ export const userRouter = router({
     .input(z.object(EditUserProfileSchema))
     .mutation(async ({ ctx, input }) => {
       const { id, name, image, skillLevel, username, bio, tags } = input;
+      const currentImageObj = await ctx.prisma.user.findUnique({
+        where: { id: id },
+        select: { image: true },
+      });
+
+      if (currentImageObj?.image !== image) {
+      }
       const user = await ctx.prisma.user.update({
         where: {
           id: id,
@@ -154,51 +127,3 @@ export const userRouter = router({
       return user;
     }),
 });
-
-export type GameJamWithUsers = Prisma.GameJamGetPayload<
-  typeof gameJamWithInclude
->;
-
-export type DetailUserExtraFields = Prisma.UserGetPayload<
-  typeof detailUserWithInclude
->;
-
-export type ListUserExtraFields = Prisma.UserGetPayload<
-  typeof listUserWithInclude
->;
-
-function addUserHandle(user: DetailUserExtraFields | User) {
-  return {
-    ...user,
-    username: user.profile.username,
-    handle: "@" + user.profile.username,
-  };
-}
-
-function addUserConnections(user: DetailUserExtraFields) {
-  const usersConnected = user.connectionRequestReceived
-    .map(({ sender }) => addUserHandle(sender))
-    .concat(
-      user.connectionRequestSent.map(({ receiver }) => addUserHandle(receiver))
-    );
-  return {
-    ...user,
-    connections: usersConnected,
-  };
-}
-
-function divideGameJams(user: DetailUserExtraFields) {
-  const gameJams = user.teamToUser.map(({ team }) => team.gameJam);
-  return {
-    ...user,
-    currentGameJams: gameJams.filter(
-      ({ startDate, endDate }) => isPast(startDate) && isFuture(endDate)
-    ),
-    previousGameJams: gameJams.filter(
-      ({ startDate, endDate }) => isPast(startDate) && isPast(endDate)
-    ),
-    upcomingGameJams: gameJams.filter(
-      ({ startDate, endDate }) => isFuture(startDate) && isFuture(endDate)
-    ),
-  };
-}

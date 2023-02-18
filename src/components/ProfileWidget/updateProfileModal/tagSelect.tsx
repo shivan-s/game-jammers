@@ -1,7 +1,7 @@
 import CustomAsyncSelect from "../../../components/CustomSelect/async";
 import getTagColor from "../../../utils/tagColors";
 import { useState } from "react";
-import { ISelectedTag } from "./interface";
+import { type ISelectedTag } from "./interface";
 import { trpc } from "../../../utils/trpc";
 
 const TagSelect = () => {
@@ -14,10 +14,10 @@ const TagSelect = () => {
   function filterOptions(searchValue: string): ISelectedTag[] {
     const filteredTags = tags
       ? tags
-          .map((tag) => ({ value: tag, label: tag.name }))
-          .filter((tag) =>
-            tag.label.toLowerCase().includes(searchValue.toLowerCase())
-          )
+        .map((tag) => ({ value: tag, label: tag.name }))
+        .filter((tag) =>
+          tag.label.toLowerCase().includes(searchValue.toLowerCase())
+        )
       : [];
     return filteredTags;
   }
