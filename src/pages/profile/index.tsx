@@ -31,16 +31,20 @@ const Profile: NextPage = () => {
   }
 
   return (
-    <div className="container flex flex-col gap-12 px-4 py-4">
-      {isError && <CustomError />}
-      {isLoading && <LoadingCircle />}
-      {isSuccess && user && (
-        <>
-          <ProfileWidget {...user} />
-          <div className="flex flex-col gap-4">View GameJams</div>
-        </>
-      )}
-    </div>
+    <>
+      <div className="flex justify-center">
+        {isError && <CustomError />}
+        {isLoading && <LoadingCircle />}
+        {isSuccess && user && (
+          <>
+            <div className="flex-col">
+              <ProfileWidget {...user} />
+              <div className="flex flex-col gap-4">View GameJams</div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

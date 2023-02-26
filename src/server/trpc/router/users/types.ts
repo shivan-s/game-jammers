@@ -43,9 +43,11 @@ export type GameJamWithUsers = Prisma.GameJamGetPayload<
   typeof gameJamWithInclude
 >;
 
-export type DetailUserExtraFields = Prisma.UserGetPayload<
-  typeof detailUserWithInclude
->;
+export type DetailUserExtraFields = {
+  username: string;
+  handle: string;
+  connections: ListUserExtraFields[];
+} & Prisma.UserGetPayload<typeof detailUserWithInclude>;
 
 export type ListUserExtraFields = Prisma.UserGetPayload<
   typeof listUserWithInclude

@@ -13,7 +13,7 @@ import UserConnections from "./userConnections";
 import UpdateProfileModal from "./updateProfileModal";
 
 const ProfileWidget = (
-  user: DetailUserExtraFields & { handle: string } & {
+  user: DetailUserExtraFields & { handle: string; username: string } & {
     connections: DetailUserExtraFields[];
   }
 ) => {
@@ -21,7 +21,7 @@ const ProfileWidget = (
   return (
     <div className="flex flex-col divide-y rounded-xl bg-stone-700">
       <div className="flex flex-wrap justify-between">
-        <div className="flex flex-col px-4 py-4">
+        <div className="flex flex-col gap-4 px-4 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <ProfileAvatar imageSize="96" user={user} />
             <div className="flex flex-col">
@@ -38,7 +38,9 @@ const ProfileWidget = (
               <p className="text-base">{user.handle}</p>
             </div>
           </div>
-          <p className="text-base text-neutral-300">{user.profile.bio}</p>
+          <p className="text-base text-neutral-300">
+            {user.profile && user.profile.bio}
+          </p>
           <p className="text-base text-neutral-300">
             Joined {format(user.dateJoined, "MMMM do yyyy")} (
             {formatDistanceToNow(user.dateJoined, { addSuffix: true })})

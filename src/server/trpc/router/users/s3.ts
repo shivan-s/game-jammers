@@ -1,9 +1,9 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomBytes } from "crypto";
-import { env } from "../../../../env/client.mjs";
+/* import { env } from "../../../../env/server.mjs"; */
 
-export async function uploadImage(body: Blog | MediaSource | File) {
+export async function uploadImage(body: Blob | MediaSource | File) {
   const rawBytes = randomBytes(16);
   const key = rawBytes.toString("hex");
   const client = new S3Client({ region: env.AWS_REGION });

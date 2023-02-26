@@ -32,38 +32,33 @@ const Members: NextPage = () => {
 
   return (
     <>
-      <div className="container flex flex-col gap-12 px-4 py-4">
-        <SearchInput
-          placeholder="Search members"
-          handleSubmit={setSearchQuery}
-        />
-        <div className="flex min-w-full max-w-lg flex-col items-center gap-2">
-          {isError && <>Error!</>}
-          {isLoading && searchQuery && <LoadingCircle />}
-          {isSuccess && (
-            <>
-              <div>
-                {data.pages[0]?.count === 0 && "No members found."}
-                {data.pages.map(({ users }) =>
-                  users.map((user) => {
-                    return <ProfileWidget key={user.id} {...user} />;
-                  })
-                )}
-              </div>
-              <Button
-                onClick={() => fetchNextPage()}
-                disabled={!hasNextPage || isFetchingNextPage}
-              >
-                {isFetchingNextPage
-                  ? "Loading more..."
-                  : hasNextPage
-                    ? "Load more"
-                    : "Nothing more to load"}
-              </Button>
-              <div>{isFetching && !isFetchingNextPage && "Fetching..."}</div>
-            </>
-          )}
-        </div>
+      <SearchInput placeholder="Search members" handleSubmit={setSearchQuery} />
+      <div className="flex min-w-full max-w-lg flex-col items-center gap-2">
+        {isError && <>Error!</>}
+        {isLoading && searchQuery && <LoadingCircle />}
+        {isSuccess && (
+          <>
+            <div>
+              {data.pages[0]?.count === 0 && "No members found."}
+              {data.pages.map(({ users }) =>
+                users.map((user) => {
+                  return <ProfileWidget key={user.id} {...user} />;
+                })
+              )}
+            </div>
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={!hasNextPage || isFetchingNextPage}
+            >
+              {isFetchingNextPage
+                ? "Loading more..."
+                : hasNextPage
+                ? "Load more"
+                : "Nothing more to load"}
+            </Button>
+            <div>{isFetching && !isFetchingNextPage && "Fetching..."}</div>
+          </>
+        )}
       </div>
     </>
   );

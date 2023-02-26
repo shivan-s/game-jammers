@@ -1,5 +1,4 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import CustomDropZone from "../../../components/CustomDropZone";
 
 async function uploadImage(key: string, body: any) {
   const client = new S3Client({ region: process.env.AWS_REGION });
@@ -19,7 +18,7 @@ async function uploadImage(key: string, body: any) {
 }
 
 const ImageUpload = () => {
-  return <CustomDropZone />;
+  return <></>;
 };
 
 export default ImageUpload;

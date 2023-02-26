@@ -1,22 +1,12 @@
 import BaseTag from "../BaseTag";
-import { type Prisma } from "@prisma/client";
-
-type TagWithCategory = Prisma.TagGetPayload<{
-  include: {
-    tagCategory: true;
-  };
-}>;
-
-interface IDisplayTag {
-  tags: TagWithCategory[];
-}
+import { type IDisplayTag, type ITags } from "./interface";
 
 const DisplayTag = ({ tags }: IDisplayTag) => {
-  const tagGroupBy = tags.reduce((acc, tag) => {
+  const tagGroupBy = tags.reduce((acc: { [key: string]: ITags[] }, tag) => {
     if (!acc[tag.tagCategory.name]) {
       acc[tag.tagCategory.name] = [];
     }
-    acc[tag.tagCategory.name].push({
+    acc[tag.tagCategory.name]?.push({
       tagColor: tag.tagCategory.tagColor,
       tagText: tag.name,
       id: tag.id,
@@ -26,11 +16,11 @@ const DisplayTag = ({ tags }: IDisplayTag) => {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {Object.keys(tagGroupBy).map((tagCategory) => {
+      {Object.keys(tagGroupBy).map((tagCategory, index) => {
         return (
           <>
             <BaseTag
-              key={tagCategory}
+              key={tagCategory + index.toString()}
               tagText={tagCategory}
               tagColor={tagGroupBy[tagCategory][0].tagColor}
             />

@@ -15,7 +15,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         <div className="sticky flex min-h-screen w-fit overflow-y-auto bg-stone-800">
           <Navbar />
         </div>
-        <div className="container mx-auto flex min-h-screen justify-around">
+        <div className="container flex min-h-screen flex-col gap-12 pt-12">
           {children}
         </div>
         <div className="sticky flex min-h-screen w-fit bg-stone-800">TODO</div>

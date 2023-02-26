@@ -9,7 +9,7 @@ const UpdateProfileModal = () => {
     setShowModal(true);
   };
   return (
-    <p>
+    <>
       <Button isPrimary onClick={handleOnClick}>
         Edit Profile
       </Button>
@@ -20,7 +20,7 @@ const UpdateProfileModal = () => {
       >
         <UpdateProfile setShowModal={setShowModal} />
       </Modal>
-    </p>
+    </>
   );
 };
 

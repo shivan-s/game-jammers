@@ -1,15 +1,9 @@
-import {
-  type ListUserExtraFields,
-  type DetailUserExtraFields,
-} from "../../server/trpc/router/users";
+import { type DetailUserExtraFields } from "../../server/trpc/router/users/types";
 import ProfileAvatar from "../ProfileAvatar";
 
-const UserConnections = ({
-  connections,
-}: DetailUserExtraFields[] | ListUserExtraFields[]) => {
+const UserConnections = ({ connections }: DetailUserExtraFields) => {
   const LIMIT = 5;
-  let connectionsToShow: DetailUserExtraFields[] | ListUserExtraFields[] =
-    connections;
+  let connectionsToShow: DetailUserExtraFields[] = connections;
   if (connections.length > LIMIT) {
     connectionsToShow = connections.slice(0, 5);
   }

@@ -14,7 +14,7 @@ import capitalize from "../../../utils/capitalize";
 import { uploadImage } from "../../../server/trpc/router/users/s3";
 import ImageUpload from "../../../components/ImageUpload";
 import { type IImage } from "../../../components/ImageUpload/interface";
-import { type IUserProfile } from "./interface";
+import { type IUpdateProfile } from "./interface";
 import Box from "../../Box";
 import Button from "../../Button";
 import LoadingCircle from "../../LoadingCircle";
@@ -48,12 +48,16 @@ const UpdateProfile = ({ setShowModal }: IUpdateProfile) => {
 
   if (isError) {
     console.error(error);
-    return <CustomError />;
   }
 
   return (
     <>
-      {isLoading && <LoadingCircle />}
+      {isError && <CustomError />}
+      {isLoading && (
+        <div className="w-full">
+          <LoadingCircle />
+        </div>
+      )}
       {isSuccess && profile && (
         <Formik
           initialValues={{
