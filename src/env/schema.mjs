@@ -28,7 +28,7 @@ export const serverSchema = z.object({
   AWS_ACCESS_ID: z.string(),
   AWS_SECRET: z.string(),
   AWS_BUCKET: z.string(),
-  AWS_REGION: z.string(),
+  /* AWS_REGION: z.string(), */
 });
 
 /**
