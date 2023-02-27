@@ -61,7 +61,7 @@
     "seed": "tsx param/seed.ts"
   },
   "lint-staged": {
-    "*.{js|ts|jsx|tsx|md|css}": [
+    "*.js|ts|jsx|tsx|md|css": [
       "eslint --fix",
       "prettier --write"
     ]
